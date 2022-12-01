@@ -66,7 +66,17 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 
 SELECT * FROM declined_signatures(1);
 		
---6) NOT NOW
+/* Attempt at 6)
+SELECT *
+FROM transactions
+WHERE transactions.statement_id IN (
+	SELECT statements.statement_id
+	FROM statements
+	WHERE statements.initiator_client = client AND statements.initiator_client IN (
+		SELECT client_account.client_id
+		FROM client_account
+		WHERE client_account.sign_role = FALSE));
+*/
 
 --7) CHECKED - CORRECT
 CREATE OR REPLACE FUNCTION client_can_sign (client INT)
@@ -123,17 +133,7 @@ CREATE OR REPLACE FUNCTION client_initiate (client INT)
 	
 SELECT * FROM client_initiate(2);
 
-/*
-SELECT *
-FROM transactions
-WHERE transactions.statement_id IN (
-	SELECT statements.statement_id
-	FROM statements
-	WHERE statements.initiator_client = client AND statements.initiator_client IN (
-		SELECT client_account.client_id
-		FROM client_account
-		WHERE client_account.sign_role = FALSE));
-*/
+
 
 --9) CHECKED - CORRECT
 CREATE OR REPLACE FUNCTION account_deposit (account INT, min_deposit_amount INT)

@@ -78,3 +78,23 @@ CREATE TABLE transactions(
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id) ON DELETE CASCADE,
 	PRIMARY KEY(statement_id, amount, transaction_type, transaction_time, note, transaction_to)
 );
+
+SELECT client_accout.account_id
+FROM client_account
+WHERE 
+SELECT client_account.client_id 
+FROM client_account
+WHERE client_account.account_id IN (
+	SELECT client_account.account_id
+	FROM client_account
+	WHERE client_account.client_id = 1)
+
+;
+
+/*
+SELECT client_account.account_id
+FROM client_account
+WHERE client_account.client_id = 1 OR client_account.client_id = 2
+GROUP BY client_account.account_id
+HAVING client_account.client_id = 1 OR client_account.client_id = 2;
+*/
