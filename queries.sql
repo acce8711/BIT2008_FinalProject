@@ -20,7 +20,7 @@ SELECT *
 FROM statements
 WHERE confirmed = TRUE;
 
---4)assmunming that by "account is not paid" it means deposit transactions for statement that is not confirmed.
+--4)assuming that by "account is not paid" it means deposit transactions for statement that is not confirmed.
 --checked - CORRECT
 CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	RETURNS TABLE (
