@@ -11,15 +11,16 @@ CREATE TABLE client_phone(
 	client_id INT,
 	phone_numbr	NUMERIC (10, 0) NOT NULL,
 	FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
-	PRIMARY KEY(client_id)
+	PRIMARY KEY(client_id, phone_numbr)
 );
 
 CREATE TABLE client_address(
 	client_id INT,
 	address	VARCHAR (50) NOT NULL,
 	FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
-	PRIMARY KEY(client_id)
+	PRIMARY KEY(client_id, address)
 );
+
 
 CREATE TABLE account(
 	account_id SERIAL,
@@ -42,7 +43,7 @@ CREATE TABLE client_account(
 	PRIMARY KEY(client_id, account_id)	
 );
 
-
+--add functions to make sure that initiator is a user of the source account
 CREATE TABLE statements(
 	statement_id SERIAL,
 	note VARCHAR(100) DEFAULT '',
@@ -70,7 +71,7 @@ CREATE TABLE transactions(
 	statement_id INT,
 	amount NUMERIC(10) DEFAULT 0,
 	transaction_type VARCHAR(30) DEFAULT 'withdrawal' CHECK (transaction_type = 'withdrawal' OR transaction_type = 'deposit'),
-	transaction_time TIMESTAMP NOT NULL,
+	transaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	note VARCHAR(100) DEFAULT '',
 	transaction_to INT,
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id) ON DELETE CASCADE,
