@@ -12,9 +12,6 @@ WHERE client_id IN (
 SELECT * FROM client_account;
 SELECT * FROM client;
 
-
-		
-
 --3) Checked - CORRECT
 SELECT * 
 FROM statements
@@ -45,7 +42,7 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 SELECT * FROM paid_transactions (6);
 		
 --5) assuming that declined signatures means where user has not signed the statement (FALSE)
---CHECKED
+--CHECKED - CORRECT
 CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 	RETURNS TABLE (
 					statement_id INT,
@@ -57,6 +54,7 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 		SELECT statement_signer.statement_id, statement_signer.client_id, statement_signer.sign
 		FROM statement_signer
 		WHERE statement_signer.sign = FALSE AND statement_signer.client_id = client AND statement_signer.client_id IN (
+			--can remove this subquery once trigger contraints added to statement_signer table
 			SELECT client_account.client_id 
 			FROM client_account
 			WHERE client_account.sign_role = TRUE);
@@ -67,17 +65,7 @@ SELECT * FROM declined_signatures(1);
 		
 --6) NOT NOW
 
---7)
-SELECT *
-		FROM statements
-		WHERE statements.statement_id IN (
-			SELECT statement_signer.statement_id
-			FROM statement_signer
-			WHERE statement_signer.client_id = client AND statement_signer.client_id IN (
-				SELECT client_account.client_id 
-				FROM client_account
-				WHERE client_account.sign_role = TRUE));
-
+--7) CHECKED - CORRECT
 CREATE OR REPLACE FUNCTION client_can_sign (client INT)
 	RETURNS TABLE (
 					statement_id INT,
@@ -95,12 +83,74 @@ CREATE OR REPLACE FUNCTION client_can_sign (client INT)
 		WHERE statements.statement_id IN (
 			SELECT statement_signer.statement_id
 			FROM statement_signer
-			WHERE statement_signer.client_id = client);
+			WHERE statement_signer.client_id = client AND statement_signer.client_id IN (
+				--can remove this subquery once trigger contraints added to statement_signer table
+				SELECT client_account.client_id 
+				FROM client_account
+				WHERE client_account.sign_role = TRUE));
 	END;
 	$$ language plpgsql
 
 SELECT * FROM client_can_sign(1);
 
---8)
-		
+--8)assuming that "transaction that is initiated by a certain user" means the intitator of the statement that the transaction belongs to.
+--checked - CORRECT
+CREATE OR REPLACE FUNCTION client_initiate (client INT)
+	RETURNS TABLE (
+					statement_id INT,
+					amount NUMERIC(10),
+					transaction_type VARCHAR(30),
+					transaction_time TIMESTAMP,
+					note VARCHAR(100),
+					transaction_to INT)
+	AS $$
+	BEGIN
+	RETURN QUERY
+		SELECT *
+		FROM transactions
+		WHERE transactions.statement_id IN (
+			SELECT statements.statement_id
+			FROM statements
+			WHERE statements.initiator_client = client AND statements.initiator_client IN (
+				SELECT client_account.client_id
+				FROM client_account
+				WHERE client_account.sign_role = FALSE));
+	END;
+	$$ language plpgsql
+	
+SELECT * FROM client_initiate(2);
+
+/*
+SELECT *
+FROM transactions
+WHERE transactions.statement_id IN (
+	SELECT statements.statement_id
+	FROM statements
+	WHERE statements.initiator_client = client AND statements.initiator_client IN (
+		SELECT client_account.client_id
+		FROM client_account
+		WHERE client_account.sign_role = FALSE));
+*/
+
+--9) CHECKED - CORRECT
+CREATE OR REPLACE FUNCTION account_deposit (account INT, min_deposit_amount INT)
+	RETURNS TABLE (
+					statement_id INT,
+					amount NUMERIC(10),
+					transaction_type VARCHAR(30),
+					transaction_time TIMESTAMP,
+					note VARCHAR(100),
+					transaction_to INT)
+	AS $$
+	BEGIN
+	RETURN QUERY
+		SELECT * 
+		FROM transactions
+		WHERE transactions.transaction_type = 'deposit'
+			AND transactions.transaction_to = account
+			AND transactions.amount > min_deposit_amount;
+			END;
+	$$ language plpgsql
+
+SELECT * FROM account_deposit(6,100);
 
