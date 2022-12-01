@@ -1,7 +1,7 @@
 
 /* Triggers :) */
 
---Creating a trigger that checks if statement that the trascation is being added to is confirmed. If yes then, trascation will not be added
+--Creating a trigger that checks if statement that the transaction is being added to is confirmed. If yes then, transaction will not be added
 CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
 	RETURNS TRIGGER
 	AS $$
