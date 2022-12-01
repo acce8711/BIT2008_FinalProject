@@ -1,50 +1,48 @@
 /*Create triggers and functions*/
 
 --change to view?
---1)
-SELECT first_name
+--1) Checked - CORRECT
+SELECT first_name, last_name
 FROM client
 WHERE client_id IN (
-SELECT client_id
-FROM client_account
-WHERE sign_role = TRUE);
+	SELECT client_id
+	FROM client_account
+	WHERE sign_role = TRUE);
 
-SELECT * FROM account;
+SELECT * FROM client_account;
+SELECT * FROM client;
 
-SELECT * 
-FROM account
-WHERE account_id in (
-	SELECT account_id
-	FROM account
-	WHERE required_signatures < (
-	SELECT accout
+
 		
 
---3)
+--3) Checked - CORRECT
 SELECT * 
 FROM statements
 WHERE confirmed = TRUE;
 
---4)
-		
-CREATE FUNCTION paid_transactions (account_id INT)
+--4)assmunming that by "account is not paid" it means deposit transactions for statement that is not confirmed.
+--checked - CORRECT
+CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	RETURNS TABLE (
-	amount VARCHAR(30),
-	transaction_type VARCHAR(30),
-	transaction_time TIMESTAMP,
-	note VARCHAR(100))
+					amount NUMERIC(10,0),
+					transaction_type VARCHAR(30),
+					transaction_time TIMESTAMP,
+					note VARCHAR(100))
 	AS $$
 	BEGIN
 	RETURN QUERY
 		SELECT transactions.amount, transactions.transaction_type, transactions.transaction_time, transactions.note
 		FROM transactions
-		WHERE transaction_to = 1 AND statement_id in (
-			SELECT statement_id
+		WHERE transactions.transaction_to = account_id AND transactions.transaction_type = 'deposit' AND transactions.statement_id in (
+			SELECT statements.statement_id
 			FROM statements
-			WHERE confirmed = FALSE
+			WHERE statements.confirmed = FALSE
 		);
 	END;
 	$$ language plpgsql
+
+	
+SELECT * FROM paid_transactions (6);
 		
 --5) Need to put into function
 	SELECT *

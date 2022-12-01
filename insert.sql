@@ -60,6 +60,7 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 105, 'deposit', 6);
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'withdrawal', 6);
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 5, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 6);
 
 
 
