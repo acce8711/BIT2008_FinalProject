@@ -63,6 +63,6 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 6);
 
 
-
+SELECT * FROM transactions;
 SELECT * FROM client;
 

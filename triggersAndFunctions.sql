@@ -44,12 +44,63 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	
 SELECT * FROM paid_transactions (6);
 		
---5) Need to put into function
-	SELECT *
-	FROM statement_signer
-	WHERE signed = False AND client_id = AND client_id IN (
-	SELECT client_id 
-	FROM client_account
-	WHERE sign = TRUE);
+--5) assuming that declined signatures means where user has not signed the statement (FALSE)
+--CHECKED
+CREATE OR REPLACE FUNCTION declined_signatures (client INT)
+	RETURNS TABLE (
+					statement_id INT,
+					client_id INT,
+					sign BOOLEAN)
+	AS $$
+	BEGIN
+	RETURN QUERY
+		SELECT statement_signer.statement_id, statement_signer.client_id, statement_signer.sign
+		FROM statement_signer
+		WHERE statement_signer.sign = FALSE AND statement_signer.client_id = client AND statement_signer.client_id IN (
+			SELECT client_account.client_id 
+			FROM client_account
+			WHERE client_account.sign_role = TRUE);
+	END;
+	$$ language plpgsql
+
+SELECT * FROM declined_signatures(1);
 		
---6)
+--6) NOT NOW
+
+--7)
+SELECT *
+		FROM statements
+		WHERE statements.statement_id IN (
+			SELECT statement_signer.statement_id
+			FROM statement_signer
+			WHERE statement_signer.client_id = client AND statement_signer.client_id IN (
+				SELECT client_account.client_id 
+				FROM client_account
+				WHERE client_account.sign_role = TRUE));
+
+CREATE OR REPLACE FUNCTION client_can_sign (client INT)
+	RETURNS TABLE (
+					statement_id INT,
+					note VARCHAR(100),
+					source_account INT, 
+					initiator_client INT,
+					total_amount NUMERIC(10,0),
+					confirmed BOOL,
+					payer INT)
+	AS $$
+	BEGIN
+	RETURN QUERY
+		SELECT *
+		FROM statements
+		WHERE statements.statement_id IN (
+			SELECT statement_signer.statement_id
+			FROM statement_signer
+			WHERE statement_signer.client_id = client);
+	END;
+	$$ language plpgsql
+
+SELECT * FROM client_can_sign(1);
+
+--8)
+		
+
