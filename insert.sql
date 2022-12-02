@@ -35,6 +35,7 @@ INSERT INTO account (total_balance, account_type, num_cosigner, required_signatu
 
 SELECT * FROM client_account;
 SELECT * FROM account;
+SELECT * FROM client;
 /*Insert account_client Data Here*/
 INSERT INTO client_account VALUES(1,4,TRUE,TRUE,TRUE);
 INSERT INTO client_account VALUES(1,5,TRUE,FALSE,FALSE);
@@ -55,6 +56,11 @@ INSERT INTO statements (note, source_account, initiator_client, payer, confirmed
 INSERT INTO statement_signer VALUES(1, 1, TRUE);
 INSERT INTO statement_signer VALUES(2, 8, FALSE);
 INSERT INTO statement_signer VALUES(2, 1, FALSE);
+INSERT INTO statement_signer VALUES(2, 9, FALSE);
+
+--testing if invalid signer can be inserted. it cannot. trigger 'verify_signer_trigger' works :D
+INSERT INTO statement_signer VALUES(1, 2, TRUE);
+
 
 /*Insert Transaction Data Here*/
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 5);
@@ -68,6 +74,13 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 
 --testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawal', 4);
+
+UPDATE statements
+SET confirmed = TRUE
+WHERE statements.statement_id = 1; 
+
+DELETE FROM transactions
+WHERE statement_id = 1;
 
 SELECT * FROM statements;
 SELECT * FROM transactions;

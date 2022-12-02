@@ -67,6 +67,7 @@ CREATE TABLE statement_signer(
 	PRIMARY KEY(statement_id, client_id)
 );
 
+/*Hmmm might need to edit transactions table because currently duplicate values are allowed*/
 CREATE TABLE transactions(
 	statement_id INT,
 	amount NUMERIC(10) DEFAULT 0,
