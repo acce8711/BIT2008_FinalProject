@@ -51,6 +51,13 @@ INSERT INTO statements (note, source_account, initiator_client, payer) VALUES('m
 INSERT INTO statements (note, source_account, initiator_client, payer) VALUES('my statement', 5, 8, 8);
 INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 8, TRUE);
 
+--checking if payer who is associaetd with source account but does not have pay role can be inserted. It cannot. Trigger verify_payer works :)
+INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 1, TRUE);
+--checking if payer who is not associaetd with source account but has a pay role can be inserted. It cannot. Trigger verify_payer works :)
+INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 10, TRUE);
+
+DELETE FROM statements WHERE statement_id = 7;
+
 /*Insert statement_signer Data Here*/
 --need to add triggers functions contraints that check if client id is asscoiated with the statemnts source account and has sign role
 INSERT INTO statement_signer VALUES(1, 1, TRUE);

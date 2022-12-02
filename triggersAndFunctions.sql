@@ -88,8 +88,9 @@ FOR EACH ROW
 EXECUTE PROCEDURE set_statement_total();
 
 
-/*Triggers for statement_signer*/
+/*Triggers for statement_signer table*/
 
+--Trigger verifes that an inserted signer is asssociated to the statemennt source account and has a sign role
 CREATE OR REPLACE FUNCTION verify_signer()
 	RETURNS TRIGGER
 	AS $$
@@ -118,3 +119,31 @@ FOR EACH ROW
 EXECUTE PROCEDURE verify_signer();
 
 
+/*Triggers for statements table*/
+CREATE OR REPLACE FUNCTION verify_payer()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	--checking if the payer is associated to the statement account and has the payer role
+	IF (NEW.payer IN (
+		SELECT client_account.client_id
+		FROM client_account
+		WHERE client_account.pay_role = TRUE AND client_account.account_id = NEW.source_account
+	)) THEN
+	  	RETURN NEW;
+	ELSE
+		RAISE EXCEPTION 'invalid payer.';
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+CREATE TRIGGER verify_payer_trigger
+BEFORE INSERT
+ON statements
+FOR EACH ROW
+EXECUTE PROCEDURE verify_payer();
+
+SELECT client_account.client_id
+FROM client_account
+WHERE client_account.sign_role = TRUE AND client_account.account_id = 5;
