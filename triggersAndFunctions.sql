@@ -1,6 +1,7 @@
 
 /* Triggers For Transactions */
 
+/*
 --Creating a trigger that checks if statement that the transaction is being added to is confirmed. If yes then, transaction will not be added
 CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
 	RETURNS TRIGGER
@@ -34,7 +35,25 @@ CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
 	END;
 	$$
 	LANGUAGE plpgsql;
-
+*/
+--Creating a trigger that checks if statement that the transaction is being added to is confirmed. If yes then, transaction will not be added
+CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	--if the trigger operation was INSERT
+	IF ((SELECT statements.confirmed 
+		FROM statements
+		WHERE statements.statement_id = COALESCE(NEW.statement_id, OLD.statement_id)
+	   ) = TRUE) THEN
+	   RAISE EXCEPTION 'statement is not longer editable. transactions cannot be added/removed.';
+	--if the statement that the transaction is associated with is not confirmed then the transaction will be added to transactions table
+	ELSE
+		RETURN COALESCE(NEW, OLD);
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;
 --Trigger to check if transaction can be inserted
 CREATE TRIGGER can_transaction_insert_trigger
 BEFORE INSERT
@@ -195,3 +214,37 @@ BEFORE INSERT
 ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE verify_initiator();
+
+--Trigger that checks if the statement is already cofnirmed or has at least one client who signed it
+CREATE OR REPLACE FUNCTION statement_edit_delete()
+	RETURNS TRIGGER
+	AS $$
+	DECLARE signature_count INT;
+	BEGIN
+    SELECT COUNT(*) INTO signature_count
+	FROM statement_signer
+	WHERE statement_signer.sign = TRUE AND statement_signer.statement_id = NEW.statement_id;
+	IF (NEW.confirmed = TRUE) THEN
+		RAISE EXCEPTION 'statement is confirmed. Cannot be deleted or edited';
+	END IF;
+	IF ( signature_count >= 1 AND TG_OP = 'UPDATE') THEN
+			RAISE EXCEPTION 'statement cannot be edited. There is already at least one signature';	
+	END IF;
+	IF (TG_OP = 'UPDATE') THEN
+		RETURN NEW;
+	ELSE
+		RETURN OLD;
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+CREATE TRIGGER edit_statement_trigger
+BEFORE UPDATE
+ON statements
+FOR EACH ROW
+EXECUTE PROCEDURE statement_edit_delete();
+
+(SELECT COUNT(*) AS signature_count
+		FROM statement_signer
+		WHERE statement_signer.statement_id = 1 AND statement_signer.sign = TRUE);
