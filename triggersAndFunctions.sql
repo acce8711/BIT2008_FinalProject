@@ -120,6 +120,8 @@ EXECUTE PROCEDURE verify_signer();
 
 
 /*Triggers for statements table*/
+
+--Trigger that checks if entered payer actually has pay role and is asscoiated with the statement source account
 CREATE OR REPLACE FUNCTION verify_payer()
 	RETURNS TRIGGER
 	AS $$
@@ -144,6 +146,52 @@ ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE verify_payer();
 
-SELECT client_account.client_id
-FROM client_account
-WHERE client_account.sign_role = TRUE AND client_account.account_id = 5;
+--Trigger that checks if entered payer actually has pay role and is asscoiated with the statement source account
+CREATE OR REPLACE FUNCTION verify_payer()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	--checking if the payer is associated to the statement source account and has the payer role
+	IF (NEW.payer IN (
+		SELECT client_account.client_id
+		FROM client_account
+		WHERE client_account.pay_role = TRUE AND client_account.account_id = NEW.source_account
+	)) THEN
+	  	RETURN NEW;
+	ELSE
+		RAISE EXCEPTION 'invalid payer.';
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+CREATE TRIGGER verify_payer_trigger
+BEFORE INSERT
+ON statements
+FOR EACH ROW
+EXECUTE PROCEDURE verify_payer();
+
+--Trigger that checks if the intitaor is associated with the statement source account
+CREATE OR REPLACE FUNCTION verify_initiator()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	--checking if the initiator is associated to the statement account and has the payer role
+	IF (NEW.initiator_client IN (
+		SELECT client_account.client_id
+		FROM client_account
+		WHERE client_account.account_id = NEW.source_account
+	)) THEN
+	  	RETURN NEW;
+	ELSE
+		RAISE EXCEPTION 'invalid initiator.';
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+CREATE TRIGGER verify_initiator_trigger
+BEFORE INSERT
+ON statements
+FOR EACH ROW
+EXECUTE PROCEDURE verify_initiator();
