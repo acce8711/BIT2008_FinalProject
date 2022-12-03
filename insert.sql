@@ -64,36 +64,41 @@ DELETE FROM statements WHERE statement_id = 10;
 
 /*Insert statement_signer Data Here*/
 --need to add triggers functions contraints that check if client id is asscoiated with the statemnts source account and has sign role
-INSERT INTO statement_signer VALUES(1, 1, TRUE);
+INSERT INTO statement_signer VALUES(18, 8, TRUE);
 INSERT INTO statement_signer VALUES(2, 8, FALSE);
 INSERT INTO statement_signer VALUES(2, 1, FALSE);
 INSERT INTO statement_signer VALUES(2, 9, FALSE);
 
 --testing if invalid signer can be inserted. it cannot. trigger 'verify_signer_trigger' works :D
-INSERT INTO statement_signer VALUES(1, 2, TRUE);
+INSERT INTO statement_signer VALUES(20, 8, TRUE);
 
 
 /*Insert Transaction Data Here*/
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 5);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 105, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'withdrawal', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 5, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 101, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 100, 'withdrawal', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(12, 10, 'deposit', 5);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(12, 105, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(12, 10, 'withdrawal', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 5, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 10, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 101, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 10, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(17, 100, 'withdrawal', 4);
 
 --testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawal', 4);
 
 UPDATE statements
-SET confirmed = TRUE
-WHERE statements.statement_id = 1; 
+SET confirmed = FALSE
+WHERE statements.statement_id = 20; 
 
 DELETE FROM transactions
 WHERE statement_id = 1;
 
+DELETE FROM statements
+WHERE statement_id=20;
 SELECT * FROM statements;
+SELECT * FROM statement_signer;
 SELECT * FROM transactions;
 SELECT * FROM client;
+
+DELETE FROM statement_signer;
 

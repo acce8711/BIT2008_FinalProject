@@ -36,7 +36,7 @@ CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
 	$$
 	LANGUAGE plpgsql;
 */
---Creating a trigger that checks if statement that the transaction is being added to is confirmed. If yes then, transaction will not be added
+--Creating a trigger that checks if statement that the transaction is being added to is confirmed. If yes then, transaction will not be inserted/deleted
 CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
 	RETURNS TRIGGER
 	AS $$
@@ -114,6 +114,12 @@ CREATE OR REPLACE FUNCTION verify_signer()
 	RETURNS TRIGGER
 	AS $$
 	BEGIN
+	IF (NEW.statement_id IN (
+		SELECT statements.statement_id 
+		FROM statements
+		WHERE statements.confirmed = TRUE)) THEN
+		RAISE EXCEPTION 'statement can no longer be edited';
+	END IF;
 	--checking if the client(signer) is associated with the statement source account and has sign role
 	IF(NEW.client_id IN (
 		SELECT client_account.client_id
@@ -122,8 +128,8 @@ CREATE OR REPLACE FUNCTION verify_signer()
 			SELECT statements.source_account
 			FROM statements
 			WHERE statements.statement_id = NEW.statement_id))
-	  ) THEN
-	  	RETURN NEW;
+	 ) THEN
+	    RETURN NEW;
 	ELSE
 		RAISE EXCEPTION 'invalid signer.';
 	END IF;
@@ -215,7 +221,7 @@ ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE verify_initiator();
 
---Trigger that checks if the statement is already cofnirmed or has at least one client who signed it
+--Trigger that checks if the statement is already cofnirmed or has at least one client who signed it. Needs more work
 CREATE OR REPLACE FUNCTION statement_edit_delete()
 	RETURNS TRIGGER
 	AS $$
@@ -224,9 +230,21 @@ CREATE OR REPLACE FUNCTION statement_edit_delete()
     SELECT COUNT(*) INTO signature_count
 	FROM statement_signer
 	WHERE statement_signer.sign = TRUE AND statement_signer.statement_id = NEW.statement_id;
-	IF (NEW.confirmed = TRUE) THEN
+	IF (OLD.confirmed = TRUE) THEN
 		RAISE EXCEPTION 'statement is confirmed. Cannot be deleted or edited';
 	END IF;
+	
+	IF (NEW.confirmed = TRUE) THEN
+		IF (signature_count >= (SELECT account.required_signatures
+						   FROM account
+						   WHERE coalesce(OLD.source_account, NEW.source_account) = account.account_id)
+		   )THEN
+			RETURN NEW;
+		ELSE
+			RAISE EXCEPTION 'not enough signatures';
+		END IF;
+	END IF;
+	
 	IF ( signature_count >= 1 AND TG_OP = 'UPDATE') THEN
 			RAISE EXCEPTION 'statement cannot be edited. There is already at least one signature';	
 	END IF;
@@ -245,6 +263,45 @@ ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE statement_edit_delete();
 
+CREATE TRIGGER delete_statement_trigger
+BEFORE DELETE
+ON statements
+FOR EACH ROW
+EXECUTE PROCEDURE statement_edit_delete();
+
 (SELECT COUNT(*) AS signature_count
 		FROM statement_signer
 		WHERE statement_signer.statement_id = 1 AND statement_signer.sign = TRUE);
+		
+/*		
+CREATE OR REPLACE FUNCTION confirm_statement()
+	RETURNS TRIGGER
+	AS $$
+	DECLARE signature_count INT;
+	BEGIN
+	SELECT COUNT(*) INTO signature_count
+	FROM statement_signer
+	WHERE statement_signer.sign = TRUE AND statement_signer.statement_id = NEW.statement_id;
+    IF (OLD.confirmed = TRUE) THEN
+		RAISE EXCEPTION 'statement is already confirmed';	
+	END IF;
+	IF (signature_count >= (SELECT account.required_signatures
+						   FROM account
+						   WHERE OLD.source_account = account.account_id)
+	   )THEN
+	    RETURN NEW;
+	ELSE
+		RAISE EXCEPTION 'not enough signatures';
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;	
+		
+CREATE TRIGGER confirm_statement_trigger
+BEFORE UPDATE OF confirmed
+ON statements
+FOR EACH ROW
+EXECUTE PROCEDURE confirm_statement();
+*/
+		
+
