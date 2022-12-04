@@ -74,6 +74,7 @@ INSERT INTO statement_confirmation VALUES(9, 1, TRUE);
 INSERT INTO statement_confirmation VALUES(4, 1, TRUE);
 
 INSERT INTO statement_confirmation VALUES(8, 2, FALSE);
+INSERT INTO statement_confirmation VALUES(13, 1, FALSE);
 
 /*Insert statement_signer Data Here*/
 --need to add triggers functions contraints that check if client id is asscoiated with the statemnts source account and has sign role
@@ -85,6 +86,7 @@ INSERT INTO statement_signer VALUES(1, 1, TRUE);
 INSERT INTO statement_signer VALUES(2, 8, TRUE);
 INSERT INTO statement_signer VALUES(2, 1, TRUE);
 INSERT INTO statement_signer VALUES(2, 9, TRUE);
+INSERT INTO statement_signer VALUES(13, 1, TRUE);
 
 
 
@@ -104,8 +106,15 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'withdrawal', 6);
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 1002, 'deposit', 6);
 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 1002, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 2, 'withdrawal', 6);
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 1002, 'deposit', 5);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1);
+
 --testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawal', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawals', 4);
 
 UPDATE statements
 SET total_amount = 2
@@ -124,16 +133,20 @@ WHERE statement_signer.statement_id = 2;
 
 UPDATE statement_confirmation
 SET confirmed = TRUE
-WHERE statement_confirmation.statement_id = 1; 
+WHERE statement_confirmation.statement_id = 13; 
+
+UPDATE transactions
+SET amount = 12
+WHERE statement_id = 2 and amount =11; 
 
 DELETE FROM transactions
 WHERE statement_id = 1;
 
 DELETE FROM statements
-WHERE statement_id=5;
+WHERE statement_id=12;
 
 DELETE FROM statement_confirmation
-WHERE statement_id=9;
+WHERE statement_id=12;
 
 SELECT * FROM statements;
 SELECT * FROM client_account;
@@ -143,5 +156,5 @@ SELECT * FROM transactions;
 SELECT * FROM client;
 SELECT * FROM account;
 
-DELETE FROM statement_signer;
+DELETE FROM transactions;
 

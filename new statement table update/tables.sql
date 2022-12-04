@@ -83,9 +83,10 @@ CREATE TABLE transactions(
 	note VARCHAR(100) DEFAULT '',
 	transaction_to INT,
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id) ON DELETE CASCADE,
-	FOREIGN KEY(statement_id) REFERENCES statements(statement_id) ON DELETE CASCADE,
+	FOREIGN KEY(transaction_to) REFERENCES account(account_id) ON DELETE CASCADE,
 	PRIMARY KEY(statement_id, amount, transaction_type, transaction_time, note, transaction_to)
 );
+
 
 SELECT client_accout.account_id
 FROM client_account

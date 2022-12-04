@@ -36,7 +36,10 @@ CREATE TRIGGER edit_statement_trigger
 BEFORE UPDATE
 ON statements
 FOR EACH ROW
+--adding pg_trigger_depth to prevent error when statement toal is updated due to transactions
+WHEN (pg_trigger_depth() < 1)
 EXECUTE PROCEDURE statement_edit_delete();
+
 
 CREATE TRIGGER delete_statement_trigger
 BEFORE DELETE
@@ -132,7 +135,7 @@ CREATE OR REPLACE FUNCTION confirm_statement()
 	  WHERE account_id = (SELECT statements.source_account
 						 FROM statements
 						 WHERE statements.statement_id = NEW.statement_id)
-	  ))THEN
+	  ) AND NEW.confirmed = TRUE)THEN
 	 	RAISE EXCEPTION 'not enough signatures.';
 	END IF;
 	RETURN NEW;
@@ -157,8 +160,12 @@ EXECUTE PROCEDURE confirm_statement();
 CREATE OR REPLACE FUNCTION update_account_balance()
 	RETURNS TRIGGER
 	AS $$
-	DECLARE from_account INT; total INT;
+	DECLARE transaction_to_process RECORD; from_account INT; total INT; 
 	BEGIN
+	
+	IF (NEW.confirmed = FALSE) THEN
+		RETURN NULL;
+   	END IF;
 	
 	SELECT statements.source_account INTO from_account
 	FROM statements
@@ -168,13 +175,25 @@ CREATE OR REPLACE FUNCTION update_account_balance()
 	FROM statements
 	WHERE statements.statement_id = NEW.statement_id;
 	
-	IF (NEW.confirmed = FALSE) THEN
-		RETURN NULL;
-   	END IF;
-	
 	UPDATE account
-	SET account.total_balance = account.total_balance + total
+	SET total_balance = account.total_balance + total
 	WHERE account.account_id = from_account;
+	
+	FOR transaction_to_process IN (SELECT *
+								  FROM transactions
+								  WHERE transactions.statement_id = NEW.statement_id)
+	LOOP
+	IF (transaction_to_process.transaction_type = 'deposit') THEN
+		UPDATE account
+		SET total_balance = account.total_balance + transaction_to_process.amount
+		WHERE account.account_id = transaction_to_process.transaction_to;
+	ELSE 
+		UPDATE account
+		SET total_balance = account.total_balance - transaction_to_process.amount
+		WHERE account.account_id = transaction_to_process.transaction_to;
+	END IF;
+	END LOOP;
+	
 	RETURN NULL;
 	
 	END;
@@ -267,6 +286,114 @@ BEFORE DELETE
 ON statement_signer
 FOR EACH ROW
 EXECUTE PROCEDURE remove_signer();
+
+--Transactions table triggers
+
+--Creating a trigger that checks if statement that the transaction is being added to is confirmed. If yes then, transaction will not be inserted/deleted
+CREATE OR REPLACE FUNCTION check_if_confirmed_transactions()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	IF (TG_OP = 'UPDATE') THEN
+		RAISE EXCEPTION 'transactions cannot be edited';
+	END IF;
+	--checking if the statement that the transaction is being added to is confirmed
+	IF ((SELECT statement_confirmation.confirmed 
+		FROM statement_confirmation
+		WHERE statement_confirmation.statement_id = COALESCE(NEW.statement_id, OLD.statement_id)
+	   ) = TRUE) THEN
+	   RAISE EXCEPTION 'statement is not longer editable. transactions cannot be added/removed.';
+	--if the statement that the transaction is associated with is not confirmed then the transaction will be added to transactions table
+	ELSE
+		RETURN COALESCE(NEW, OLD);
+	END IF;
+	END;
+	$$
+	LANGUAGE plpgsql;
+--Trigger to check if transaction can be inserted
+CREATE TRIGGER can_transaction_insert_trigger
+BEFORE INSERT
+ON transactions
+FOR EACH ROW
+EXECUTE PROCEDURE check_if_confirmed_transactions();
+
+--Trigger to check if transaction can be deleted
+CREATE TRIGGER can_transaction_delete_trigger
+BEFORE DELETE
+ON transactions
+FOR EACH ROW
+EXECUTE PROCEDURE check_if_confirmed_transactions();
+
+--Trigger to prevent transactions from getting updated (assuming that transactions can not be edited, only inserted or removed)
+CREATE TRIGGER can_transaction_update_trigger
+BEFORE UPDATE
+ON transactions
+FOR EACH ROW
+EXECUTE PROCEDURE check_if_confirmed_transactions();
+
+
+--Trigger for setting the statement total to the total of its transactions when new row in transactions is added
+CREATE OR REPLACE FUNCTION set_statement_total()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	
+	-- if the transaction type is 'deposit' then transaction amount will be added to total statement amount.
+	IF (NEW.transaction_type = 'deposit') THEN
+		UPDATE statements
+		SET total_amount = statements.total_amount - NEW.amount
+		WHERE statements.statement_id = NEW.statement_id;
+		RETURN NEW;
+	-- if the deposit type is 'withdrawal' then transaction amount will be deducted from total statement amount.
+	ELSE
+		UPDATE statements
+		SET total_amount = statements.total_amount + NEW.amount
+		WHERE statements.statement_id = NEW.statement_id;
+		RETURN NEW;
+	END IF;
+	
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+CREATE TRIGGER set_statement_total_trigger
+AFTER INSERT
+ON transactions
+FOR EACH ROW
+EXECUTE PROCEDURE set_statement_total();
+
+
+--Trigger for setting the statement total to the total of its transactions when new row in transactions is deleted
+CREATE OR REPLACE FUNCTION set_statement_total_delete()
+	RETURNS TRIGGER
+	AS $$
+	BEGIN
+	
+	-- if the transaction type is 'deposit' then transaction amount will be added to total statement amount.
+	IF (OLD.transaction_type = 'deposit') THEN
+		UPDATE statements
+		SET total_amount = statements.total_amount + OLD.amount
+		WHERE statements.statement_id = OLD.statement_id;
+		RETURN OLD;
+	-- if the deposit type is 'withdrawal' then transaction amount will be deducted from total statement amount.
+	ELSE
+		UPDATE statements
+		SET total_amount = statements.total_amount - OLD.amount
+		WHERE statements.statement_id = OLD.statement_id;
+		RETURN OLD;
+	END IF;
+	
+	END;
+	$$
+	LANGUAGE plpgsql;
+	
+CREATE TRIGGER set_statement_total_delete_trigger
+AFTER DELETE
+ON transactions
+FOR EACH ROW
+EXECUTE PROCEDURE set_statement_total_delete();
+
+
 
 
 
