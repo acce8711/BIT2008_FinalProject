@@ -12,13 +12,13 @@ WHERE client_id IN (
 	FROM client_account
 	WHERE sign_role = TRUE);
 
-SELECT * FROM client_account;
-SELECT * FROM client;
-
 --3) Checked - CORRECT
 SELECT * 
 FROM statements
-WHERE confirmed = TRUE;
+WHERE statements.statement_id IN (
+	SELECT statement_confirmation.statement_id
+	FROM statement_confirmation
+	WHERE statement_confirmation.confirmed = TRUE) ;
 
 --4)assuming that by "account is not paid" it means deposit transactions for statement that is not confirmed.
 --checked - CORRECT
@@ -34,9 +34,9 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 		SELECT transactions.amount, transactions.transaction_type, transactions.transaction_time, transactions.note
 		FROM transactions
 		WHERE transactions.transaction_to = account_id AND transactions.transaction_type = 'deposit' AND transactions.statement_id in (
-			SELECT statements.statement_id
-			FROM statements
-			WHERE statements.confirmed = FALSE
+			SELECT statement_confirmation.statement_id
+			FROM statement_confirmation
+			WHERE statement_confirmation.confirmed = FALSE
 		);
 	END;
 	$$ language plpgsql
@@ -54,9 +54,9 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 	AS $$
 	BEGIN
 	RETURN QUERY
-		SELECT statement_signer.statement_id, statement_signer.client_id, statement_signer.sign
+		SELECT statement_signer.statement_id, statement_signer.signer_id, statement_signer.sign
 		FROM statement_signer
-		WHERE statement_signer.sign = FALSE AND statement_signer.client_id = client AND statement_signer.client_id IN (
+		WHERE statement_signer.sign = FALSE AND statement_signer.signer_id = client AND statement_signer.signer_id IN (
 			--can remove this subquery once trigger contraints added to statement_signer table
 			SELECT client_account.client_id 
 			FROM client_account
@@ -85,9 +85,8 @@ CREATE OR REPLACE FUNCTION client_can_sign (client INT)
 					note VARCHAR(100),
 					source_account INT, 
 					initiator_client INT,
-					total_amount NUMERIC(10,0),
-					confirmed BOOL,
-					payer INT)
+					total_amount NUMERIC(10,0)
+					)
 	AS $$
 	BEGIN
 	RETURN QUERY
@@ -96,7 +95,7 @@ CREATE OR REPLACE FUNCTION client_can_sign (client INT)
 		WHERE statements.statement_id IN (
 			SELECT statement_signer.statement_id
 			FROM statement_signer
-			WHERE statement_signer.client_id = client AND statement_signer.client_id IN (
+			WHERE statement_signer.signer_id = client AND statement_signer.signer_id IN (
 				--can remove this subquery once trigger contraints added to statement_signer table
 				SELECT client_account.client_id 
 				FROM client_account
@@ -105,6 +104,7 @@ CREATE OR REPLACE FUNCTION client_can_sign (client INT)
 	$$ language plpgsql
 
 SELECT * FROM client_can_sign(1);
+
 
 --8)assuming that "transaction that is initiated by a certain user" means the intitator of the statement that the transaction belongs to.
 --checked - CORRECT
@@ -151,8 +151,13 @@ CREATE OR REPLACE FUNCTION account_deposit (account INT, min_deposit_amount INT)
 		FROM transactions
 		WHERE transactions.transaction_type = 'deposit'
 			AND transactions.transaction_to = account
-			AND transactions.amount > min_deposit_amount;
-			END;
+			AND transactions.amount > min_deposit_amount
+			AND transactions.statement_id IN (
+				SELECT statement_confirmation.statement_id
+				FROM statement_confirmation
+				WHERE statement_confirmation.confirmed = TRUE
+			);
+	END;
 	$$ language plpgsql
 
-SELECT * FROM account_deposit(6,100);
+SELECT * FROM account_deposit(6,5);

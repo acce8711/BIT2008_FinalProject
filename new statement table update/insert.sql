@@ -42,14 +42,14 @@ INSERT INTO client_account VALUES(1,5,TRUE,FALSE,FALSE);
 INSERT INTO client_account VALUES(2,4,FALSE,TRUE,FALSE);
 INSERT INTO client_account VALUES(8,5,TRUE,TRUE,TRUE);
 INSERT INTO client_account VALUES(9,5,TRUE,TRUE,TRUE);
-INSERT INTO client_account VALUES(10,6,TRUE,TRUE,TRUE);
-INSERT INTO client_account VALUES(11,6,TRUE,FALSE,FALSE);
+
 
 /*Insert Statement Data Here*/
 --need to add trigger or function to make sure that payer is assoicated with source account
-INSERT INTO statements (note, source_account, initiator_client, payer) VALUES('my statement', 4, 2, 1);
-INSERT INTO statements (note, source_account, initiator_client, payer) VALUES('my statement', 5, 8, 8);
-INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 8, TRUE);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 2);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 5, 8);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 8);
+
 
 --checking if payer who is associaetd with source account but does not have pay role can be inserted. It cannot. Trigger verify_payer works :)
 INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 1, TRUE);
@@ -62,9 +62,13 @@ INSERT INTO statements (note, source_account, initiator_client, payer, confirmed
 
 DELETE FROM statements WHERE statement_id = 10;
 
+/*Insert statement_confirmation data here*/
+INSERT INTO statement_confirmation VALUES(2, 8, FALSE);
+INSERT INTO statement_confirmation VALUES(1, 2, FALSE);
+INSERT INTO statement_confirmation VALUES(3, 2, TRUE);
+
 /*Insert statement_signer Data Here*/
 --need to add triggers functions contraints that check if client id is asscoiated with the statemnts source account and has sign role
-INSERT INTO statement_signer VALUES(18, 8, TRUE);
 INSERT INTO statement_signer VALUES(2, 8, FALSE);
 INSERT INTO statement_signer VALUES(2, 1, FALSE);
 INSERT INTO statement_signer VALUES(2, 9, FALSE);
@@ -74,14 +78,14 @@ INSERT INTO statement_signer VALUES(20, 8, TRUE);
 
 
 /*Insert Transaction Data Here*/
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(12, 10, 'deposit', 5);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(12, 105, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(12, 10, 'withdrawal', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 5, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 10, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 101, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 10, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(17, 100, 'withdrawal', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 5);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 105, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'withdrawal', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 5, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 101, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 100, 'withdrawal', 4);
 
 --testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawal', 4);

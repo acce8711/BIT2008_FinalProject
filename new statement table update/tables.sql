@@ -49,22 +49,29 @@ CREATE TABLE statements(
 	note VARCHAR(100) DEFAULT '',
 	source_account INT, 
 	initiator_client INT,
+	--create trigegr to prevent user from enetering an amount that is not 0
 	total_amount NUMERIC(10,0) DEFAULT 0,
-	confirmed BOOL DEFAULT FALSE,
-	payer INT,
 	FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
 	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE ,
-	FOREIGN KEY(payer) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(statement_id)
+);
+
+CREATE TABLE statement_confirmation (
+	statement_id INT,
+	payer_id INT,
+	confirmed BOOLEAN DEFAULT FALSE,
+	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
+	FOREIGN KEY(payer_id) REFERENCES client(client_id)ON DELETE CASCADE,
 	PRIMARY KEY(statement_id)
 );
 
 CREATE TABLE statement_signer(
 	statement_id INT,
-	client_id INT,
+	signer_id INT,
 	sign BOOLEAN DEFAULT FALSE,
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
-	FOREIGN KEY(client_id) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(statement_id, client_id)
+	FOREIGN KEY(signer_id) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(statement_id, signer_id)
 );
 
 /*Hmmm might need to edit transactions table because currently duplicate values are allowed*/
