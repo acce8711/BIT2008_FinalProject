@@ -1,18 +1,18 @@
 /*Insert CLient Data Here*/
-INSERT INTO client (first_name, last_name, client_password) VALUES('Jim', 'Rocks', 'ILikeRocks');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Chloe', 'Joyce', 'idopds762');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Gavin', 'Morse', 'MorseCode9237');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Abbott', 'Bryce', 'dsjdnh78273');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Kara', 'Adams', 'shdhusdh3');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Breonia', 'Adams', 'Morsd7');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Anyssa', 'Morse', 'Morsdd6');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Gavin', 'Alcantar', 'uhd37');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Zackry', 'Alvarez', 'zswve98');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Parsa', 'Aldridge', 'USSUns9237');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Brooke', 'Ballard', 'sas2e9237');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Max', 'Ballard', 'sas2e9237');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Patrick', 'Ballard', 'sjdiohd982');
-INSERT INTO client (first_name, last_name, client_password) VALUES('Suzy', 'Ballard', 'baguetteouioui92');
+INSERT INTO client VALUES(1,'Jim', 'Rocks', 'ILikeRocks');
+INSERT INTO client VALUES(2,'Chloe', 'Joyce', 'idopds762');
+INSERT INTO client VALUES(3,'Gavin', 'Morse', 'MorseCode9237');
+INSERT INTO client VALUES(4,'Abbott', 'Bryce', 'dsjdnh78273');
+INSERT INTO client VALUES(5,'Kara', 'Adams', 'shdhusdh3');
+INSERT INTO client VALUES(6,'Breonia', 'Adams', 'Morsd7');
+INSERT INTO client VALUES(7,'Anyssa', 'Morse', 'Morsdd6');
+INSERT INTO client VALUES(8,'Gavin', 'Alcantar', 'uhd37');
+INSERT INTO client VALUES(9,'Zackry', 'Alvarez', 'zswve98');
+INSERT INTO client VALUES(10,'Parsa', 'Aldridge', 'USSUns9237');
+INSERT INTO client VALUES(11,'Brooke', 'Ballard', 'sas2e9237');
+INSERT INTO client VALUES(12,'Max', 'Ballard', 'sas2e9237');
+INSERT INTO client VALUES(13,'Patrick', 'Ballard', 'sjdiohd982');
+INSERT INTO client VALUES(14,'Suzy', 'Ballard', 'baguetteouioui92');
 
 --Inserting phone numbers
 INSERT INTO client_phone VALUES(1, 5477890568);
@@ -154,6 +154,8 @@ SELECT * FROM statement_confirmation;
 SELECT * FROM statement_signer;
 SELECT * FROM transactions;
 SELECT * FROM client;
+SELECT * FROM client_phone;
+SELECT * FROM client_address;
 SELECT * FROM account;
 
 DELETE FROM transactions;

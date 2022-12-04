@@ -1,11 +1,12 @@
 /*Create Tables Here*/
 CREATE TABLE client(
-	client_id SERIAL,
+	client_id INT,
 	first_name VARCHAR(30) NOT NULL,
 	last_name VARCHAR(30) NOT NULL,
 	client_password	VARCHAR(20) NOT NULL,
 	PRIMARY KEY(client_id)
 );
+
 
 CREATE TABLE client_phone(
 	client_id INT,
