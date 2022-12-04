@@ -63,8 +63,33 @@ CREATE OR REPLACE FUNCTION edit_access(user_id INT, account INT, sign_r BOOLEAN,
 SELECT edit_access(14,6,FALSE,FALSE,FALSE);
 
 --4) Creating a statement
+CREATE OR REPLACE FUNCTION create_statement(source_acc INT, initiator INT, note VARCHAR(100), total_amount INT DEFAULT 0)
+	RETURNS VOID
+	AS $$
+	BEGIN
+		INSERT INTO statements(note, source_account, initiator_client, total_amount) VALUES(note, source_acc, initiator, total_amount);
+	END;
+	$$
+	LANGUAGE plpgsql;
+						
+--Test - WORKS
+SELECT create_statement(4,2,'hello');
+SELECT create_statement(4,1,'hello2',10);
 
-									   
+--5) Edit or remove a statement. Not sure what this wants
+
+--6) Sign or unsign a statement. 
+CREATE OR REPLACE FUNCTION sign_unsign_statement(id_statement INT, client_id INT, sign BOOLEAN)
+	RETURNS VOID
+	AS $$
+	BEGIN
+		INSERT INTO statements(note, source_account, initiator_client, total_amount) VALUES(note, source_acc, initiator, total_amount);
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+
+
 									   
 	
 	
