@@ -78,7 +78,7 @@ CREATE TABLE statement_signer(
 /*Hmmm might need to edit transactions table because currently duplicate values are allowed*/
 CREATE TABLE transactions(
 	statement_id INT,
-	amount NUMERIC(10) DEFAULT 0,
+	amount NUMERIC(10) NOT NULL,
 	transaction_type VARCHAR(30) DEFAULT 'withdrawal' CHECK (transaction_type = 'withdrawal' OR transaction_type = 'deposit'),
 	transaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	note VARCHAR(100) DEFAULT '',
@@ -87,6 +87,7 @@ CREATE TABLE transactions(
 	FOREIGN KEY(transaction_to) REFERENCES account(account_id) ON DELETE CASCADE,
 	PRIMARY KEY(statement_id, amount, transaction_type, transaction_time, note, transaction_to)
 );
+
 
 
 SELECT client_accout.account_id

@@ -75,6 +75,7 @@ INSERT INTO statement_confirmation VALUES(4, 1, TRUE);
 
 INSERT INTO statement_confirmation VALUES(8, 2, FALSE);
 INSERT INTO statement_confirmation VALUES(13, 1, FALSE);
+INSERT INTO statement_confirmation VALUES(16, 1, FALSE);
 
 /*Insert statement_signer Data Here*/
 --need to add triggers functions contraints that check if client id is asscoiated with the statemnts source account and has sign role
@@ -87,6 +88,7 @@ INSERT INTO statement_signer VALUES(2, 8, TRUE);
 INSERT INTO statement_signer VALUES(2, 1, TRUE);
 INSERT INTO statement_signer VALUES(2, 9, TRUE);
 INSERT INTO statement_signer VALUES(13, 1, TRUE);
+INSERT INTO statement_signer VALUES(16, 1, TRUE);
 
 
 
@@ -132,8 +134,8 @@ DELETE FROM statement_signer
 WHERE statement_signer.statement_id = 2;
 
 UPDATE statement_confirmation
-SET confirmed = TRUE
-WHERE statement_confirmation.statement_id = 13; 
+SET payer_id = 2
+WHERE statement_confirmation.statement_id = 16; 
 
 UPDATE transactions
 SET amount = 12

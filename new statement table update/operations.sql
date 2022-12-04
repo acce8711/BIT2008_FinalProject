@@ -79,17 +79,58 @@ SELECT create_statement(4,1,'hello2',10);
 --5) Edit or remove a statement. Not sure what this wants
 
 --6) Sign or unsign a statement. 
-CREATE OR REPLACE FUNCTION sign_unsign_statement(id_statement INT, client_id INT, sign BOOLEAN)
+CREATE OR REPLACE FUNCTION sign_unsign_statement(id_statement INT, client_id INT, statement_sign BOOLEAN)
 	RETURNS VOID
 	AS $$
 	BEGIN
-		INSERT INTO statements(note, source_account, initiator_client, total_amount) VALUES(note, source_acc, initiator, total_amount);
+		--checking if client_id and statement are in statement_confrimation table
+		IF(id_statement NOT IN (SELECT statement_id FROM statement_signer) OR client_id NOT IN (SELECT signer_id FROM statement_signer)) THEN
+			RAISE EXCEPTION 'client is not a signer for the statement';
+		END IF;
+		
+		UPDATE statement_signer
+		SET sign = statement_sign
+		WHERE statement_signer.signer_id = client_id AND statement_signer.statement_id = id_statement;
+
 	END;
 	$$
 	LANGUAGE plpgsql;
 
+--Test - WORKS
+SELECT sign_unsign_statement(16,1,TRUE);
 
+--7) Pay a statement 
+CREATE OR REPLACE FUNCTION pay_statement(id_statement INT, client_id INT)
+	RETURNS VOID
+	AS $$
+	BEGIN
+		--checking if client_id and statement are in statement_confrimation table
+		IF(id_statement NOT IN (SELECT statement_id FROM statement_confirmation) OR client_id NOT IN (SELECT payer_id FROM statement_confirmation)) THEN
+			RAISE EXCEPTION 'client is not a payer for the statement';
+		END IF;
+		
+		UPDATE statement_confirmation
+		SET confirmed = TRUE
+		WHERE statement_confirmation.payer_id = client_id AND statement_confirmation.statement_id = id_statement;
 
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+--Test - WORKS
+SELECT pay_statement(16,1);
+
+--8) Add incoming and outgoing transactions to an account 
+CREATE OR REPLACE FUNCTION add_transaction(id_statement INT, account_id INT, amount INT, type_transaction VARCHAR(30) DEFAULT 'withdrawal', note VARCHAR(100) DEFAULT '')
+	RETURNS VOID
+	AS $$
+	BEGIN
+	
+		INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(id_statement, amount, type_transaction, account_id, note);
+
+	END;
+	$$
+	LANGUAGE plpgsql;
 									   
-	
-	
+--Test - WORKS
+SELECT add_transaction(15, 1, 100, 'deposit');
