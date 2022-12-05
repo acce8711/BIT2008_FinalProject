@@ -232,7 +232,7 @@ CREATE OR REPLACE FUNCTION verify_signer()
 	 ) THEN
 	    RETURN NEW;
 	ELSE
-		RAISE EXCEPTION 'signer cannot be added. user does not have sign role.';
+		RAISE EXCEPTION 'signer cannot be added. user does not have sign role or ';
 	END IF;
 	
 	END;

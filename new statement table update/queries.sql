@@ -18,9 +18,9 @@ FROM account
 INNER JOIN (SELECT client_account.account_id, COUNT(client_account.sign_role) as num_signers
 			FROM client_account
 			WHERE client_account.sign_role = TRUE
-			GROUP BY client_account.account_id) AS accounts
-ON accounts.account_id = account.account_id
-WHERE account.required_signatures < accounts.num_signers;
+			GROUP BY client_account.account_id) AS signer_account
+ON signer_account.account_id = account.account_id
+WHERE account.required_signatures < signer_account.num_signers;
 ;
 
 --3) Checked - CORRECT
