@@ -11,6 +11,17 @@ WHERE client_id IN (
 	SELECT client_id
 	FROM client_account
 	WHERE sign_role = TRUE);
+	
+--2)
+SELECT account.account_id, account.required_signatures
+FROM account
+INNER JOIN (SELECT client_account.account_id, COUNT(client_account.sign_role) as num_signers
+			FROM client_account
+			WHERE client_account.sign_role = TRUE
+			GROUP BY client_account.account_id) AS accounts
+ON accounts.account_id = account.account_id
+WHERE account.required_signatures < accounts.num_signers;
+;
 
 --3) Checked - CORRECT
 SELECT * 
