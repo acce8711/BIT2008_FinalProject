@@ -1,0 +1,5 @@
+CREATE TABLE account_operation_log
+
+CREATE TABLE client_role_changes
+
+CREATE TABLE table_edit_time_log

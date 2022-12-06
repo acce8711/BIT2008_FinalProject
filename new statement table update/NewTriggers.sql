@@ -36,7 +36,7 @@ CREATE TRIGGER edit_statement_trigger
 BEFORE UPDATE
 ON statements
 FOR EACH ROW
---adding pg_trigger_depth to prevent error when statement toal is updated due to transactions
+--adding pg_trigger_depth to prevent error when statement total is updated due to transactions
 WHEN (pg_trigger_depth() < 1)
 EXECUTE PROCEDURE statement_edit_delete();
 

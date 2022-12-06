@@ -24,7 +24,21 @@ INSERT INTO client_phone VALUES(4, 5477890734);
 INSERT INTO client_phone VALUES(6, 6137869263);
 
 --Inserting addresses
-INSERT INTO client_address VALUES(1)
+INSERT INTO client_address VALUES(1, '100 Place Rd');
+INSERT INTO client_address VALUES(2, '101 Rainbow Rd');
+INSERT INTO client_address VALUES(3, '102 Rose Rd');
+INSERT INTO client_address VALUES(4, '103 Lonely Rd');
+INSERT INTO client_address VALUES(5, '104 Rocky Rd');
+INSERT INTO client_address VALUES(6, '105 Slippery Rd');
+INSERT INTO client_address VALUES(7, '106 Bumpy Rd');
+INSERT INTO client_address VALUES(8, '107 Narrow Rd');
+INSERT INTO client_address VALUES(9, '108 Broken Rd');
+INSERT INTO client_address VALUES(10, '109 Super Rd');
+INSERT INTO client_address VALUES(11, '110 Row Rd');
+INSERT INTO client_address VALUES(12, '111 Column Rd');
+INSERT INTO client_address VALUES(13, '112 Amina Way');
+INSERT INTO client_address VALUES(14, '113 Emma Street');
+
 
 /*Insert Account Data Here*/
 INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(130, 'savings', 3, 2);
@@ -52,15 +66,6 @@ INSERT INTO statements (note, source_account, initiator_client) VALUES('my state
 INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 8);
 INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 1);
 INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 1);
-
-
---checking if payer who is associaetd with source account but does not have pay role can be inserted. It cannot. Trigger verify_payer works :)
-INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 1, TRUE);
---checking if payer who is not associaetd with source account but has a pay role can be inserted. It cannot. Trigger verify_payer works :)
-INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 9, 10, TRUE);
-
---checking if intitator who is not associated with the statement source account can be inserted. It cannot. Trigger verify_initiator works :D
-INSERT INTO statements (note, source_account, initiator_client, payer, confirmed) VALUES('testStatement', 5, 10, 8, TRUE);
 
 
 DELETE FROM statements WHERE statement_id = 10;
