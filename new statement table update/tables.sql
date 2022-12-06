@@ -50,7 +50,7 @@ CREATE TABLE statements(
 	note VARCHAR(100) DEFAULT '',
 	source_account INT, 
 	initiator_client INT,
-	--create trigegr to prevent user from enetering an amount that is not 0
+	--create trigger to prevent user from enetering an amount that is not 0
 	total_amount NUMERIC(10,0) DEFAULT 0,
 	FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
 	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE ,

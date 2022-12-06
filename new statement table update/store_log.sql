@@ -1,46 +1,186 @@
 /*I am not done yet :(*/
 
-CREATE TABLE account_sign_audit(
-    client_id INT,
-    account_id INT,
-    sign BOOLEAN NOT NULL,
+/*
+Store the history of all operations on an account/statement including sign, unsign, pay and initiation.
+
+Create tables to keep track of any account operations with a timestamp
+1. Initiate statement audit table
+2. Statement sign or unsign audit table
+3. Statement pay audit table
+
+*/
+CREATE TABLE statement_initiate_audit(
+    statement_id SERIAL, --initiated statement
+	source_account INT, --account that statement is initiated on
+	initiator_client INT,
     tstamp TIMESTAMP NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
-	FOREIGN KEY(account_id) REFERENCES account (account_id) ON DELETE CASCADE ,
-	PRIMARY KEY(client_id, account_id)	
+    FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
+	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE ,
+	PRIMARY KEY(statement_id)	
 )
 
-
-CREATE TABLE account_pay_audit(
-    client_id INT,
-    account_id INT,
-    amount NUMERIC(10) DEFAULT 0,
+CREATE TABLE statement_sign_audit(
+    statement_id INT,
+	signer_id INT,
+	sign BOOLEAN DEFAULT FALSE,
     tstamp TIMESTAMP NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
-	FOREIGN KEY(account_id) REFERENCES account (account_id) ON DELETE CASCADE ,
-	PRIMARY KEY(client_id, account_id)	
+	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
+	FOREIGN KEY(signer_id) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(statement_id, signer_id)
 )
 
-CREATE TABLE account_initiate_audit(
-    initiator INT,
-    account_id INT,
+CREATE TABLE statement_pay_audit(
+    statement_id INT,
+	payer_id INT,
+	confirmed BOOLEAN DEFAULT FALSE,
     tstamp TIMESTAMP NOT NULL,
-    FOREIGN KEY(initiator) REFERENCES client(client_id) ON DELETE CASCADE,
-	FOREIGN KEY(account_id) REFERENCES account (account_id) ON DELETE CASCADE ,
-	PRIMARY KEY(client_id, account_id)	
+	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
+	FOREIGN KEY(payer_id) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(statement_id)	
 )
 
+/*
+Create a function for each account/statement operation
+1. initiate
+2. sign/unsign
+3. pay
+*/
+
+
+CREATE OR REPLACE FUNCTION log_statement_initiate_operation()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    if (TG_OP = 'UPDATE') then
+       INSERT INTO statement_initiate_audit(
+        statement_id,
+        source_account,
+        initiator_client,
+        tstamp
+       )
+       VALUES(
+       NEW.statement_id,
+       NEW.source_account,
+       NEW.initiator_client,
+       CURRENT_TIMESTAMP
+       );
+	  end if;
+RETURN NEW;
+END;
+$$
+
+CREATE OR REPLACE FUNCTION log_statement_sign_operation()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    if (TG_OP = 'UPDATE') then
+       INSERT INTO statement_sign_audit(
+       statement_id,
+       signer_id,
+       sign,
+       tstamp
+       )
+       VALUES(
+        NEW.statement_id,
+        NEW.signer_id,
+        NEW.sign,
+        CURRENT_TIMESTAMP  
+       );
+	  end if;
+RETURN NEW;
+END;
+$$
+
+CREATE OR REPLACE FUNCTION log_statement_pay_operation()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    if (TG_OP = 'UPDATE') then
+       INSERT INTO statement_pay_audit(
+        statement_id,
+        payer_id,
+        confirmed,
+        tstamp
+       )
+       VALUES(
+        NEW.statement_id,
+        NEW.payer_id,
+        NEW.confirmed,
+        CURRENT_TIMESTAMP
+       );
+       end if;
+RETURN NEW;
+END;
+$$
+
+/*Create a trigger for each table that will be used in account/statement operations*/
+
+CREATE TRIGGER log_initiate_operation_trigger
+AFTER INSERT
+ON statement_initiate_audit
+FOR EACH ROW
+EXECUTE PROCEDURE log_statement_initiate_operation();
+
+CREATE TRIGGER log_sign_operation_trigger
+AFTER INSERT
+ON statement_sign_audit
+FOR EACH ROW
+EXECUTE PROCEDURE log_statement_sign_operation();
+
+CREATE TRIGGER log_pay_operation_trigger
+AFTER INSERT
+ON statement_pay_audit
+FOR EACH ROW
+EXECUTE PROCEDURE log_statement_pay_operation();
+
+/*• Store the log of all the changes to the roles of each client.*/
 CREATE TABLE client_role_changes(
     client_id INT,
     account_id INT,
-    sign BOOLEAN NOT NULL,
-    view BOOLEAN NOT NULL,
-    pay BOOLEAN NOT NULL,
+    sign_role BOOLEAN NOT NULL,
+    view_role BOOLEAN NOT NULL,
+    pay_role BOOLEAN NOT NULL,
     tstamp TIMESTAMP NOT NULL,
     FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
     FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE,
     PRIMARY KEY(client_id, account_id)
 )
+
+CREATE OR REPLACE FUNCTION log_client_role_change()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+BEGIN
+    if (TG_OP = "UPDATE") then
+       INSERT INTO client_role_changes (
+        client_id,
+        account_id,
+        sign_role,
+        view_role,
+        pay_role,
+        tstamp 
+       )
+       VALUES(
+        NEW.client_id,
+        NEW.account_id,
+        NEW.sign_role,
+        NEW.view_role,
+        NEW.pay_role,
+        CURRENT_TIMESTAMP
+       );
+    end if;
+RETURN NEW;
+END;
+$$
+
+CREATE TRIGGER client_role_change_trigger
+AFTER UPDATE
+ON statement_signer
+FOR EACH ROW
+EXECUTE PROCEDURE remove_signer();
 
 /*
 Store the last time the tables are edited
@@ -157,7 +297,7 @@ CREATE OR REPLACE FUNCTION update_timestamp()
     LANGUAGE plpgsql
 AS $$
 BEGIN
- NEW.lastModified = now();
+ NEW.lastModified = CURRENT_TIMESTAMP;
  RETURN NEW;
 END;
 $$
