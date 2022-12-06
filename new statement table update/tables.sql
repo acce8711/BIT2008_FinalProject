@@ -89,7 +89,7 @@ CREATE TABLE transactions(
 );
 
 
-
+/*
 SELECT client_accout.account_id
 FROM client_account
 WHERE 
@@ -99,8 +99,8 @@ WHERE client_account.account_id IN (
 	SELECT client_account.account_id
 	FROM client_account
 	WHERE client_account.client_id = 1)
-
 ;
+*/
 
 /*
 SELECT client_account.account_id
