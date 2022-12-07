@@ -217,9 +217,9 @@ SELECT * from client_lM; --it shows the timestamp :)
 
 --modify the client table 
 UPDATE client_lM
-SET client_password = '4ctu477y4t3rr!b73pswd12093012'
+SET client_password = 'changed'
 WHERE client_id = 1;
-SELECT * from client_lM WHERE client_id = 1; --it 
+SELECT * from client_lM WHERE client_id = 1;
 
 
 CREATE TABLE client_phone(
@@ -381,7 +381,7 @@ EXECUTE update_timestamp();
 
 
 
-
+--testing with new table 
 
 
 
