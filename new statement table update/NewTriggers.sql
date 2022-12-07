@@ -13,12 +13,12 @@ CREATE OR REPLACE FUNCTION statement_edit_delete()
 	IF ((SELECT statement_confirmation.confirmed
 		FROM statement_confirmation
 		WHERE statement_confirmation.statement_id = COALESCE(NEW.statement_id, OLD.statement_id)) = TRUE) THEN
-		RAISE EXCEPTION 'statement is confirmed. Cannot be deleted or edited';	
+		RAISE EXCEPTION 'Statement is confirmed. Cannot be deleted or edited';	
 	END IF;
 	
 	--checking if the trigger operation was UPDATE and the statement already has at least one signature
 	IF ( signature_count >= 1 AND TG_OP = 'UPDATE') THEN
-			RAISE EXCEPTION 'statement cannot be edited. There is already at least one signature';	
+			RAISE EXCEPTION 'Statement cannot be edited. There is already at least one signature';	
 	END IF;
 	
 	--Returning NEW or OLD depending on whether the trgger operation was UPDATE or DELETE

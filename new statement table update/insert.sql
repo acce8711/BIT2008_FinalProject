@@ -72,28 +72,25 @@ DELETE FROM statements WHERE statement_id = 10;
 
 /*Insert statement_confirmation data here*/
 INSERT INTO statement_confirmation VALUES(2, 8, FALSE);
-INSERT INTO statement_confirmation VALUES(1, 2, FALSE);
-INSERT INTO statement_confirmation VALUES(4, 2, TRUE);
-INSERT INTO statement_confirmation VALUES(9, 1, TRUE);
-
-INSERT INTO statement_confirmation VALUES(4, 1, TRUE);
-
-INSERT INTO statement_confirmation VALUES(8, 2, FALSE);
-INSERT INTO statement_confirmation VALUES(13, 1, FALSE);
-INSERT INTO statement_confirmation VALUES(16, 1, FALSE);
+--INSERT INTO statement_confirmation VALUES(1, 2, FALSE);-- trigger error: not enough signatures
+--INSERT INTO statement_confirmation VALUES(4, 2, TRUE);-- trigger error: not enough signatures
+--INSERT INTO statement_confirmation VALUES(9, 1, TRUE); -- trigger error: invalid payer
+--INSERT INTO statement_confirmation VALUES(4, 1, TRUE); --trigger error: not enough signatures
+--INSERT INTO statement_confirmation VALUES(8, 2, FALSE); -- trigger error: invalid payer
+--INSERT INTO statement_confirmation VALUES(13, 1, FALSE);  -- trigger error: invalid payer
+--INSERT INTO statement_confirmation VALUES(16, 1, FALSE);  -- trigger error: invalid payer
 
 /*Insert statement_signer Data Here*/
---need to add triggers functions contraints that check if client id is asscoiated with the statemnts source account and has sign role
+--need to add triggers functions constraints that check if client id is associated with the statemnts source account and has sign role
 INSERT INTO statement_signer VALUES(1, 1, TRUE);
 INSERT INTO statement_signer VALUES(5, 1, TRUE);
-INSERT INTO statement_signer VALUES(2, 2, TRUE);
-INSERT INTO statement_signer VALUES(8, 1, TRUE);
-INSERT INTO statement_signer VALUES(1, 1, TRUE);
+--INSERT INTO statement_signer VALUES(2, 2, TRUE); --trigger error: no sign role
+--INSERT INTO statement_signer VALUES(8, 1, TRUE); --trigger error: no sign role
 INSERT INTO statement_signer VALUES(2, 8, TRUE);
 INSERT INTO statement_signer VALUES(2, 1, TRUE);
 INSERT INTO statement_signer VALUES(2, 9, TRUE);
-INSERT INTO statement_signer VALUES(13, 1, TRUE);
-INSERT INTO statement_signer VALUES(16, 1, TRUE);
+--INSERT INTO statement_signer VALUES(13, 1, TRUE); --trigger error: no sign role
+--INSERT INTO statement_signer VALUES(16, 1, TRUE); --trigger error: no sign role
 
 
 
@@ -102,23 +99,23 @@ INSERT INTO statement_signer VALUES(20, 8, TRUE);
 
 
 /*Insert Transaction Data Here*/
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 5);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 105, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'withdrawal', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 5, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 101, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 100, 'withdrawal', 4);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'withdrawal', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 1002, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 5); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 105, 'deposit', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'withdrawal', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 5, 'deposit', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 101, 'deposit', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 100, 'withdrawal', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'withdrawal', 6); --wow, this one actually works! 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 1002, 'deposit', 6); --this one works too!
 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 1002, 'deposit', 6);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 2, 'withdrawal', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 1002, 'deposit', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 2, 'withdrawal', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 1002, 'deposit', 5);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 1002, 'deposit', 5); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey" 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
 
 --testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawals', 4);
