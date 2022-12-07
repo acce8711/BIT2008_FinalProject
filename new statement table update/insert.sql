@@ -57,12 +57,13 @@ INSERT INTO account (total_balance, account_type, num_cosigner, required_signatu
 SELECT * FROM client_account;
 SELECT * FROM account;
 SELECT * FROM client;
+
 /*Insert account_client Data Here*/
-INSERT INTO client_account VALUES(1,4,TRUE,TRUE,TRUE);
-INSERT INTO client_account VALUES(1,5,TRUE,FALSE,FALSE);
-INSERT INTO client_account VALUES(2,4,FALSE,TRUE,FALSE);
-INSERT INTO client_account VALUES(8,5,TRUE,TRUE,TRUE);
-INSERT INTO client_account VALUES(9,5,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,4,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,5,TRUE,FALSE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(2,4,FALSE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(8,5,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(9,5,TRUE,TRUE,TRUE);
 
 
 /*Insert Statement Data Here*/
