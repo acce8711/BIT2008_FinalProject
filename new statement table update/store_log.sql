@@ -329,60 +329,61 @@ CREATE TRIGGER client_lastModified_update
 BEFORE UPDATE ON
 ON client
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
+
+CREATE TRIGGER client_lastModified_update
+BEFORE UPDATE ON
+ON client_lM
+FOR EACH ROW
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_phone_lastModified_update
 BEFORE UPDATE ON
 ON client_phone
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_address_lastModified_update
 BEFORE UPDATE ON
 ON client_address
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER account_lastModified_update
 BEFORE UPDATE ON
 ON account
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_account_lastModified_update
 BEFORE UPDATE ON
 ON client_account
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PPROCEDURE update_timestamp();
 
 CREATE TRIGGER statements_lastModified_update
 BEFORE UPDATE ON
 ON statements
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER statement_signer_lastModified_update
 BEFORE UPDATE ON
 ON statement_signer
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER transactions_lastModified_update
 BEFORE UPDATE ON
 ON transactions
 FOR EACH ROW
-EXECUTE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER statement_confirmation_lastModified_update
 BEFORE UPDATE ON
 ON statement_confirmation
 FOR EACH ROW
-EXECUTE update_timestamp();
-
-
-
---testing with new table 
-
+EXECUTE PROCEDURE update_timestamp();
 
 
 
