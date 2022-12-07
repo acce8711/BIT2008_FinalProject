@@ -1,0 +1,8 @@
+--statement_confirmation table trigger tests
+--INSERT INTO statement_confirmation VALUES(1, 2, FALSE);-- trigger error: not enough signatures
+--INSERT INTO statement_confirmation VALUES(4, 2, TRUE);-- trigger error: not enough signatures
+--INSERT INTO statement_confirmation VALUES(9, 1, TRUE); -- trigger error: invalid payer
+--INSERT INTO statement_confirmation VALUES(4, 1, TRUE); --trigger error: not enough signatures
+--INSERT INTO statement_confirmation VALUES(8, 2, FALSE); -- trigger error: invalid payer
+--INSERT INTO statement_confirmation VALUES(13, 1, FALSE);  -- trigger error: invalid payer
+--INSERT INTO statement_confirmation VALUES(16, 1, FALSE);  -- trigger error: invalid payer

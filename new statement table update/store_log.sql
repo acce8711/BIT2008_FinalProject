@@ -10,14 +10,15 @@ Create tables to keep track of any account operations with a timestamp
 
 */
 CREATE TABLE statement_initiate_audit(
-    statement_id SERIAL, --initiated statement
+    statement_id INT, --initiated statement
 	source_account INT, --account that statement is initiated on
 	initiator_client INT,
     tstamp TIMESTAMP NOT NULL,
+    FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
     FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
-	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE ,
+	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE,
 	PRIMARY KEY(statement_id)	
-)
+);
 
 CREATE TABLE statement_sign_audit(
     statement_id INT,
@@ -27,7 +28,7 @@ CREATE TABLE statement_sign_audit(
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
 	FOREIGN KEY(signer_id) REFERENCES client(client_id)ON DELETE CASCADE,
 	PRIMARY KEY(statement_id, signer_id)
-)
+);
 
 CREATE TABLE statement_pay_audit(
     statement_id INT,
@@ -37,7 +38,13 @@ CREATE TABLE statement_pay_audit(
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
 	FOREIGN KEY(payer_id) REFERENCES client(client_id)ON DELETE CASCADE,
 	PRIMARY KEY(statement_id)	
-)
+);
+
+SELECT * FROM statement_initiate_audit;
+SELECT * FROM statement_sign_audit;
+SELECT * FROM statement_pay_audit;
+SELECT * FROM client_role_changes_audit;
+
 
 /*
 Create a function for each account/statement operation
@@ -48,54 +55,55 @@ Create a function for each account/statement operation
 
 
 CREATE OR REPLACE FUNCTION log_statement_initiate_operation()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
+RETURNS TRIGGER
 AS $$
 BEGIN
-    if (TG_OP = 'UPDATE') then
-       INSERT INTO statement_initiate_audit(
-        statement_id,
-        source_account,
-        initiator_client,
-        tstamp
-       )
-       VALUES(
-       NEW.statement_id,
-       NEW.source_account,
-       NEW.initiator_client,
-       CURRENT_TIMESTAMP
-       );
-	  end if;
+
+INSERT INTO statement_initiate_audit(
+statement_id,
+source_account,
+initiator_client,
+tstamp
+)
+VALUES(
+NEW.statement_id,
+NEW.source_account,
+NEW.initiator_client,
+CURRENT_TIMESTAMP
+);
+
 RETURN NEW;
 END;
 $$
+LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION log_statement_sign_operation()
     RETURNS TRIGGER
-    LANGUAGE plpgsql
 AS $$
 BEGIN
-    if (TG_OP = 'UPDATE') then
-       INSERT INTO statement_sign_audit(
-       statement_id,
-       signer_id,
-       sign,
-       tstamp
-       )
-       VALUES(
-        NEW.statement_id,
-        NEW.signer_id,
-        NEW.sign,
-        CURRENT_TIMESTAMP  
-       );
-	  end if;
+   
+INSERT INTO statement_sign_audit(
+statement_id,
+signer_id,
+sign,
+tstamp
+)
+VALUES(
+NEW.statement_id,
+NEW.signer_id,
+NEW.sign,
+CURRENT_TIMESTAMP  
+);
+	  
 RETURN NEW;
 END;
 $$
+LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION log_statement_pay_operation()
     RETURNS TRIGGER
-    LANGUAGE plpgsql
 AS $$
 BEGIN
     if (TG_OP = 'UPDATE') then
@@ -115,6 +123,7 @@ BEGIN
 RETURN NEW;
 END;
 $$
+LANGUAGE plpgsql;
 
 ------Create a trigger for each table that will be used in account/statement operations--------------------
 
@@ -124,15 +133,30 @@ ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_initiate_operation();
 
-CREATE TRIGGER log_sign_operation_trigger
-AFTER UPDATE OF sign ON statement_signer
+CREATE TRIGGER log_sign_operation_update_trigger
+AFTER UPDATE OF sign 
+ON statement_signer
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_sign_operation();
 
-CREATE TRIGGER log_pay_operation_trigger
-AFTER UPDATE OF confirmed ON statement_confirmation
+CREATE TRIGGER log_sign_operation_insert_trigger
+AFTER INSERT 
+ON statement_signer
+FOR EACH ROW
+EXECUTE PROCEDURE log_statement_sign_operation();
+
+CREATE TRIGGER log_pay_operation_update_trigger
+AFTER UPDATE OF confirmed
+ON statement_confirmation
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_pay_operation();
+
+CREATE TRIGGER log_pay_operation_insert_trigger
+AFTER INSERT 
+ON statement_confirmation
+FOR EACH ROW
+EXECUTE PROCEDURE log_statement_pay_operation();
+
 
 --------Store the log of all the changes to the roles of each client----------------------------------------
 CREATE TABLE client_role_changes_audit(
@@ -145,37 +169,38 @@ CREATE TABLE client_role_changes_audit(
     FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
     FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE,
     PRIMARY KEY(client_id, account_id)
-)
+);
+
 
 CREATE OR REPLACE FUNCTION log_client_role_change()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
+RETURNS TRIGGER
 AS $$
 BEGIN
-    if (TG_OP = "UPDATE") then
-       INSERT INTO client_role_changes (
-        client_id,
-        account_id,
-        sign_role,
-        view_role,
-        pay_role,
-        tstamp 
-       )
-       VALUES(
-        NEW.client_id,
-        NEW.account_id,
-        NEW.sign_role,
-        NEW.view_role,
-        NEW.pay_role,
-        CURRENT_TIMESTAMP
-       );
-    end if;
+    
+INSERT INTO client_role_changes_audit (
+client_id,
+account_id,
+sign_role,
+view_role,
+pay_role,
+tstamp 
+)
+VALUES(
+NEW.client_id,
+NEW.account_id,
+NEW.sign_role,
+NEW.view_role,
+NEW.pay_role,
+CURRENT_TIMESTAMP
+);   
 RETURN NEW;
+
 END;
 $$
+LANGUAGE plpgsql;
 
 CREATE TRIGGER client_role_change_trigger
-AFTER UPDATE OF sign_role, view_role,pay_role
+AFTER UPDATE OF sign_role, view_role, pay_role
 ON client_account
 FOR EACH ROW
 EXECUTE PROCEDURE log_client_role_change();
@@ -193,13 +218,13 @@ Then, a function will be called that will change the timestamp in lastModified w
 
 CREATE OR REPLACE FUNCTION update_timestamp()
     RETURNS TRIGGER
-    LANGUAGE plpgsql
 AS $$
 BEGIN
-     NEW.lastModified = CURRENT_TIMESTAMP;
+    NEW.lastModified = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$
+LANGUAGE plpgsql;
 
 --Create triggers for each table to call update_timestamp-----------------------------------------
 
@@ -231,7 +256,7 @@ CREATE TRIGGER client_account_lastModified_update
 BEFORE UPDATE
 ON client_account
 FOR EACH ROW
-EXECUTE PPROCEDURE update_timestamp();
+EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER statements_lastModified_update
 BEFORE UPDATE

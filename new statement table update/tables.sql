@@ -118,7 +118,7 @@ CREATE TABLE client(
 	client_id INT,
 	first_name VARCHAR(30) NOT NULL,
 	last_name VARCHAR(30) NOT NULL,
-	client_password	VARCHAR(20) NOT NULL,
+	client_password	VARCHAR(50) NOT NULL,
     lastModified TIMESTAMP DEFAULT now(),
 	PRIMARY KEY(client_id)
 );
@@ -133,7 +133,7 @@ CREATE TABLE client_phone(
 
 CREATE TABLE client_address(
 	client_id INT,
-	address	VARCHAR (50) NOT NULL,
+	address	VARCHAR (100) NOT NULL,
     lastModified TIMESTAMP DEFAULT now(),
 	FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
 	PRIMARY KEY(client_id, address)

@@ -1,4 +1,4 @@
-/*Insert CLient Data Here*/
+--Inserting client data
 INSERT INTO client VALUES(1,'Jim', 'Rocks', 'ILikeRocks');
 INSERT INTO client VALUES(2,'Chloe', 'Joyce', 'idopds762');
 INSERT INTO client VALUES(3,'Gavin', 'Morse', 'MorseCode9237');
@@ -14,7 +14,7 @@ INSERT INTO client VALUES(12,'Max', 'Ballard', 'sas2e9237');
 INSERT INTO client VALUES(13,'Patrick', 'Ballard', 'sjdiohd982');
 INSERT INTO client VALUES(14,'Suzy', 'Ballard', 'baguetteouioui92');
 
---Inserting phone numbers
+--Inserting client_phone data
 INSERT INTO client_phone VALUES(1, 5477890568);
 INSERT INTO client_phone VALUES(1, 5477895938);
 INSERT INTO client_phone VALUES(2, 6137902375);
@@ -31,7 +31,8 @@ INSERT INTO client_phone VALUES(12, 6131230012);
 INSERT INTO client_phone VALUES(13, 6131230013);
 INSERT INTO client_phone VALUES(14, 6131230014);
 
---Inserting addresses
+
+--Inserting client_address data
 INSERT INTO client_address VALUES(1, '100 Place Rd');
 INSERT INTO client_address VALUES(2, '101 Rainbow Rd');
 INSERT INTO client_address VALUES(3, '102 Rose Rd');
@@ -47,56 +48,141 @@ INSERT INTO client_address VALUES(12, '111 Column Rd');
 INSERT INTO client_address VALUES(13, '112 Amina Way');
 INSERT INTO client_address VALUES(14, '113 Emma Street');
 
-/*Insert Account Data Here*/
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(130, 'savings', 3, 2);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(3000, 'savings', 2, 1);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(4500, 'checkings', 2, 2);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(14500, 'savings', 1, 1);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500, 'checkings', 2, 2);
 
-SELECT * FROM client_account;
-SELECT * FROM account;
-SELECT * FROM client;
-
-/*Insert account_client Data Here*/
-INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,4,TRUE,TRUE,TRUE);
-INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,5,TRUE,FALSE,FALSE);
-INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(2,4,FALSE,TRUE,FALSE);
-INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(8,5,TRUE,TRUE,TRUE);
-INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(9,5,TRUE,TRUE,TRUE);
+--Inserting account data
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(130.10, 'savings', 3, 2);
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(3000.20, 'savings', 2, 1);
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(4500.25, 'checkings', 2, 2);
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(14500.45, 'savings', 1, 1);
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500.31, 'savings', 3, 1);
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500.50, 'checkings', 5, 5);
+INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500.65, 'checkings', 4, 2);
 
 
-/*Insert Statement Data Here*/
---need to add trigger or function to make sure that payer is assoicated with source account
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 2);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 5, 8);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 8);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 8);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 1);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement', 4, 1);
+--Inserting client_account data 
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,1,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(3,1,TRUE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(7,1,TRUE,FALSE,TRUE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(5,2,TRUE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(6,2,FALSE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(2,2,TRUE,TRUE,TRUE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(9,3,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(10,3,TRUE,TRUE,FALSE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(4,4,TRUE,TRUE,TRUE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(11,5,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(12,5,TRUE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(13,5,TRUE,TRUE,FALSE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,6,TRUE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(2,6,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(3,6,TRUE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(4,6,TRUE,FALSE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(5,6,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(6,6,FALSE,FALSE,FALSE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(9,7,TRUE,TRUE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(10,7,TRUE,TRUE,FALSE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(11,7,TRUE,FALSE,TRUE);
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(8,7,TRUE,FALSE,TRUE);
+
+UPDATE client_account
+SET view_role = TRUE
+WHERE client_id = 8 AND account_id = 7;
+
+--Inserting statements data
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement1', 1, 1);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement2', 2, 6);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement3', 3, 10);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement4', 4, 4);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement5', 5, 11);
+INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement6', 6, 5);
 
 
-DELETE FROM statements WHERE statement_id = 10;
+--Inserting statement_confirmation data
+INSERT INTO statement_confirmation VALUES(6, 1, FALSE);
+INSERT INTO statement_confirmation VALUES(2, 6, FALSE);
+INSERT INTO statement_confirmation VALUES(3, 9, FALSE);
+INSERT INTO statement_confirmation VALUES(4, 4, FALSE);
+INSERT INTO statement_confirmation VALUES(5, 2, FALSE);
+INSERT INTO statement_confirmation VALUES(6, 11, FALSE);
+
+--Inserting statement_signer data
+INSERT INTO statement_signer VALUES(6, 3, TRUE);
+INSERT INTO statement_signer VALUES(1, 1, FALSE);
+
+INSERT INTO statement_signer VALUES(2, 2, TRUE);
+
+INSERT INTO statement_signer VALUES(3, 10, TRUE);
+INSERT INTO statement_signer VALUES(3, 9, TRUE);
+
+INSERT INTO statement_signer VALUES(4, 4, TRUE);
+
+INSERT INTO statement_signer VALUES(5, 2, FALSE);
+INSERT INTO statement_signer VALUES(5, 5, FALSE);
+
+INSERT INTO statement_signer VALUES(6, 11, FALSE);
+INSERT INTO statement_signer VALUES(6, 12, FALSE);
+INSERT INTO statement_signer VALUES(6, 13, TRUE);
+
+/*
+INSERT INTO statement_signer VALUES(7, 1, FALSE);
+INSERT INTO statement_signer VALUES(7, 2, FALSE);
+INSERT INTO statement_signer VALUES(7, 3, FALSE);
+INSERT INTO statement_signer VALUES(7, 4, TRUE);
+INSERT INTO statement_signer VALUES(7, 5, FALSE);
+*/
+
+--Inserting transactions data
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 9);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 23, 'withdrawal', 10);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 100, 'withdrawal', 11);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 25, 'deposit', 10);
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 25, 'deposit', 8);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 104, 'deposit', 12);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 67, 'withdrawal', 13);
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 65, 'withdrawal', 13);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 10, 'deposit', 12);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'deposit', 8);
+
+/*
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 100.95, 'withdrawal', 8);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 200, 'deposit', 9);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 347, 'deposit', 10);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 25.3, 'withdrawal', 12);
+*/
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(4, 100, 'withdrawal', 8, 'thanks for the cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(4, 45.36, 'deposit', 10, 'here is some cash');
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 100, 'deposit', 10, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 102, 'withdrawal', 9, 'thanks for the cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 23.5, 'deposit', 8, 'here is some cash');
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 100, 'deposit', 8, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 550.50, 'withdrawal', 11,  'thanks for the cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 25, 'deposit', 9, 'here is some cash');
+
+
+
+
+
+
 
 /*Insert statement_confirmation data here*/
-INSERT INTO statement_confirmation VALUES(2, 8, FALSE);
---INSERT INTO statement_confirmation VALUES(1, 2, FALSE);-- trigger error: not enough signatures
---INSERT INTO statement_confirmation VALUES(4, 2, TRUE);-- trigger error: not enough signatures
---INSERT INTO statement_confirmation VALUES(9, 1, TRUE); -- trigger error: invalid payer
---INSERT INTO statement_confirmation VALUES(4, 1, TRUE); --trigger error: not enough signatures
---INSERT INTO statement_confirmation VALUES(8, 2, FALSE); -- trigger error: invalid payer
---INSERT INTO statement_confirmation VALUES(13, 1, FALSE);  -- trigger error: invalid payer
---INSERT INTO statement_confirmation VALUES(16, 1, FALSE);  -- trigger error: invalid payer
+
+
 
 /*Insert statement_signer Data Here*/
 --need to add triggers functions constraints that check if client id is associated with the statemnts source account and has sign role
-INSERT INTO statement_signer VALUES(1, 1, TRUE);
-INSERT INTO statement_signer VALUES(5, 1, TRUE);
+
 --INSERT INTO statement_signer VALUES(2, 2, TRUE); --trigger error: no sign role
 --INSERT INTO statement_signer VALUES(8, 1, TRUE); --trigger error: no sign role
-INSERT INTO statement_signer VALUES(2, 8, TRUE);
-INSERT INTO statement_signer VALUES(2, 1, TRUE);
-INSERT INTO statement_signer VALUES(2, 9, TRUE);
+
 --INSERT INTO statement_signer VALUES(13, 1, TRUE); --trigger error: no sign role
 --INSERT INTO statement_signer VALUES(16, 1, TRUE); --trigger error: no sign role
 
@@ -130,7 +216,7 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 
 UPDATE statements
 SET total_amount = 2
-WHERE statements.statement_id = 5; 
+WHERE statements.statement_id = 2; 
 
 UPDATE statement_signer
 SET sign = TRUE
@@ -151,6 +237,11 @@ UPDATE transactions
 SET amount = 12
 WHERE statement_id = 2 and amount =11; 
 
+UPDATE client_phone
+SET phone_numbr = 6137869244
+WHERE client_id = 1 AND phone_numbr=6137869233; 
+
+
 DELETE FROM transactions
 WHERE statement_id = 1;
 
@@ -158,10 +249,15 @@ DELETE FROM statements
 WHERE statement_id=12;
 
 DELETE FROM statement_confirmation
-WHERE statement_id=12;
+
+
+DELETE FROM client_phone;
+
+DELETE FROM client_account;
 
 SELECT * FROM statements;
 SELECT * FROM client_account;
+SELECT * FROM statements;
 SELECT * FROM statement_confirmation;
 SELECT * FROM statement_signer;
 SELECT * FROM transactions;
@@ -170,5 +266,13 @@ SELECT * FROM client_phone;
 SELECT * FROM client_address;
 SELECT * FROM account;
 
+DELETE FROM client;
+DELETE FROM client_phone;
+DELETE FROM client_address;
+DELETE FROM account;
+DELETE FROM client_account;
+DELETE FROM statements;
+DELETE FROM statement_confirmation;
+DELETE FROM statement_signer;
 DELETE FROM transactions;
 
