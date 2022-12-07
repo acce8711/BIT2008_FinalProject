@@ -326,61 +326,61 @@ Need to use BEFORE UPDATE or else you will be put into infinite loop
 
 */
 CREATE TRIGGER client_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON client
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON client_lM
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_phone_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON client_phone
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_address_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON client_address
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER account_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON account
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER client_account_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON client_account
 FOR EACH ROW
 EXECUTE PPROCEDURE update_timestamp();
 
 CREATE TRIGGER statements_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER statement_signer_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON statement_signer
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER transactions_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON transactions
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 CREATE TRIGGER statement_confirmation_lastModified_update
-BEFORE UPDATE ON
+BEFORE UPDATE
 ON statement_confirmation
 FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
