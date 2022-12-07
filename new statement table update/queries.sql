@@ -1,10 +1,7 @@
-/*Write queries here*/
-/*Create triggers and functions*/
-
 /*LOGGING*/
 
---change to view?
---1) Checked - CORRECT
+
+--1) Show the name of the clients who have a ”sign” role on at least one account.
 SELECT first_name, last_name
 FROM client
 WHERE client_id IN (
@@ -12,7 +9,7 @@ WHERE client_id IN (
 	FROM client_account
 	WHERE sign_role = TRUE);
 	
---2)
+--2) Show the list of the accounts with fewer required signatures than the signers.
 SELECT account.account_id, account.required_signatures
 FROM account
 INNER JOIN (SELECT client_account.account_id, COUNT(client_account.sign_role) as num_signers
@@ -21,18 +18,19 @@ INNER JOIN (SELECT client_account.account_id, COUNT(client_account.sign_role) as
 			GROUP BY client_account.account_id) AS signer_account
 ON signer_account.account_id = account.account_id
 WHERE account.required_signatures < signer_account.num_signers;
-;
 
---3) Checked - CORRECT
+
+--3) Show the list of every statement that is confirmed.
 SELECT * 
 FROM statements
 WHERE statements.statement_id IN (
 	SELECT statement_confirmation.statement_id
 	FROM statement_confirmation
-	WHERE statement_confirmation.confirmed = TRUE) ;
+	WHERE statement_confirmation.confirmed = TRUE);
 
---4)assuming that by "account is not paid" it means deposit transactions for statement that is not confirmed.
---checked - CORRECT
+--4)Show the list of all transactions to a certain account that is not paid.
+/*ASSUMPTION: assuming that by "account is not paid" it means deposit transactions 
+for statements that are not confirmed and are associated with the account.*/
 CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	RETURNS TABLE (
 					amount NUMERIC(10,0),
@@ -52,7 +50,7 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	END;
 	$$ language plpgsql
 
-	
+--Test	
 SELECT * FROM paid_transactions (6);
 		
 --5) assuming that declined signatures means where user has not signed the statement (FALSE)
