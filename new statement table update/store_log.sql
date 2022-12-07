@@ -120,24 +120,22 @@ $$
 
 CREATE TRIGGER log_initiate_operation_trigger
 AFTER INSERT
-ON statement_initiate_audit
+ON statements
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_initiate_operation();
 
 CREATE TRIGGER log_sign_operation_trigger
-AFTER INSERT
-ON statement_sign_audit
+AFTER UPDATE OF sign ON statement_signer
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_sign_operation();
 
 CREATE TRIGGER log_pay_operation_trigger
-AFTER INSERT
-ON statement_pay_audit
+AFTER UPDATE OF confirmed ON statement_confirmation
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_pay_operation();
 
 /*• Store the log of all the changes to the roles of each client.*/
-CREATE TABLE client_role_changes(
+CREATE TABLE client_role_changes_audit(
     client_id INT,
     account_id INT,
     sign_role BOOLEAN NOT NULL,
@@ -177,10 +175,10 @@ END;
 $$
 
 CREATE TRIGGER client_role_change_trigger
-AFTER UPDATE
-ON statement_signer
+AFTER UPDATE OF sign_role, view_role,pay_role
+ON client_account
 FOR EACH ROW
-EXECUTE PROCEDURE remove_signer();
+EXECUTE PROCEDURE log_client_role_change();
 
 /*
 Store the last time the tables are edited
@@ -200,6 +198,28 @@ CREATE TABLE client(
     lastModified TIMESTAMP DEFAULT now(),
 	PRIMARY KEY(client_id)
 );
+
+
+--Create new alternate client table called "client_lM" (lM = lastModified)
+
+CREATE TABLE client_lM(
+	client_id INT,
+	first_name VARCHAR(30) NOT NULL,
+	last_name VARCHAR(30) NOT NULL,
+	client_password	VARCHAR(20) NOT NULL,
+    lastModified TIMESTAMP DEFAULT now(),
+	PRIMARY KEY(client_id)
+);
+
+--Insert and select to test see the new lastModified column
+INSERT INTO client_lM VALUES (1, 'Bob', 'Bobby', 'wowwhatagoodpassword555');
+SELECT * from client_lM; --it shows the timestamp :)
+
+--modify the client table 
+UPDATE client_lM
+SET client_password = '4ctu477y4t3rr!b73pswd12093012'
+WHERE client_id = 1;
+SELECT * from client_lM WHERE client_id = 1; --it 
 
 
 CREATE TABLE client_phone(
@@ -242,13 +262,11 @@ CREATE TABLE client_account(
 	PRIMARY KEY(client_id, account_id)	
 );
 
---add functions to make sure that initiator is a user of the source account
 CREATE TABLE statements(
 	statement_id SERIAL,
 	note VARCHAR(100) DEFAULT '',
 	source_account INT, 
 	initiator_client INT,
-	--create trigegr to prevent user from enetering an amount that is not 0
 	total_amount NUMERIC(10,0) DEFAULT 0,
     lastModified TIMESTAMP DEFAULT now(),
 	FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
@@ -276,7 +294,6 @@ CREATE TABLE statement_signer(
 	PRIMARY KEY(statement_id, signer_id)
 );
 
-/*Hmmm might need to edit transactions table because currently duplicate values are allowed*/
 CREATE TABLE transactions(
 	statement_id INT,
 	amount NUMERIC(10) NOT NULL,
@@ -291,14 +308,13 @@ CREATE TABLE transactions(
 );
 
 /*Create function that changes the lastModified timestamp in each table*/
-
 CREATE OR REPLACE FUNCTION update_timestamp()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS $$
 BEGIN
- NEW.lastModified = CURRENT_TIMESTAMP;
- RETURN NEW;
+     NEW.lastModified = CURRENT_TIMESTAMP;
+    RETURN NEW;
 END;
 $$
 
