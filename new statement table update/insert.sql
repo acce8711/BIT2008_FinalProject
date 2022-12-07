@@ -22,6 +22,14 @@ INSERT INTO client_phone VALUES(3, 5470998762);
 INSERT INTO client_phone VALUES(4, 5477890568);
 INSERT INTO client_phone VALUES(4, 5477890734);
 INSERT INTO client_phone VALUES(6, 6137869263);
+INSERT INTO client_phone VALUES(7, 6131230007);
+INSERT INTO client_phone VALUES(8, 6131230008);
+INSERT INTO client_phone VALUES(9, 6131230009);
+INSERT INTO client_phone VALUES(10, 6131230010);
+INSERT INTO client_phone VALUES(11, 6131230011);
+INSERT INTO client_phone VALUES(12, 6131230012);
+INSERT INTO client_phone VALUES(13, 6131230013);
+INSERT INTO client_phone VALUES(14, 6131230014);
 
 --Inserting addresses
 INSERT INTO client_address VALUES(1, '100 Place Rd');
@@ -38,7 +46,6 @@ INSERT INTO client_address VALUES(11, '110 Row Rd');
 INSERT INTO client_address VALUES(12, '111 Column Rd');
 INSERT INTO client_address VALUES(13, '112 Amina Way');
 INSERT INTO client_address VALUES(14, '113 Emma Street');
-
 
 /*Insert Account Data Here*/
 INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(130, 'savings', 3, 2);

@@ -116,7 +116,7 @@ RETURN NEW;
 END;
 $$
 
-/*Create a trigger for each table that will be used in account/statement operations*/
+------Create a trigger for each table that will be used in account/statement operations--------------------
 
 CREATE TRIGGER log_initiate_operation_trigger
 AFTER INSERT
@@ -134,7 +134,7 @@ AFTER UPDATE OF confirmed ON statement_confirmation
 FOR EACH ROW
 EXECUTE PROCEDURE log_statement_pay_operation();
 
-/*• Store the log of all the changes to the roles of each client.*/
+--------Store the log of all the changes to the roles of each client----------------------------------------
 CREATE TABLE client_role_changes_audit(
     client_id INT,
     account_id INT,
@@ -189,7 +189,7 @@ We will make a trigger for each table on any update
 Then, a function will be called that will change the timestamp in lastModified when triggered
 */
 
---Create function that changes the lastModified timestamp in each table
+--Create function that changes the lastModified timestamp in each table--------------------------------
 
 CREATE OR REPLACE FUNCTION update_timestamp()
     RETURNS TRIGGER
@@ -201,7 +201,7 @@ BEGIN
 END;
 $$
 
---Create triggers for each table to call update_timestamp.
+--Create triggers for each table to call update_timestamp-----------------------------------------
 
 CREATE TRIGGER client_lastModified_update
 BEFORE UPDATE
@@ -265,4 +265,4 @@ UPDATE client
 SET client_password = 'after'
 WHERE client_id = 15;
 SELECT * from client WHERE client_id = 15;--timestamp is 11:38:20. It works :D.
-
+------------------------------------------------------------------------------------------------------------
