@@ -1,3 +1,5 @@
+/*I am not done yet :(*/
+
 /*
 Store the history of all operations on an account/statement including sign, unsign, pay and initiation.
 
@@ -8,6 +10,7 @@ Create tables to keep track of any account operations with a timestamp
 
 */
 CREATE TABLE statement_initiate_audit(
+	audit_id SERIAL,
     statement_id INT, --initiated statement
 	source_account INT, --account that statement is initiated on
 	initiator_client INT,
@@ -15,28 +18,32 @@ CREATE TABLE statement_initiate_audit(
     FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
     FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
 	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(statement_id)	
+	PRIMARY KEY(audit_id)	
 );
 
 CREATE TABLE statement_sign_audit(
+	audit_id SERIAL,
     statement_id INT,
 	signer_id INT,
 	sign BOOLEAN DEFAULT FALSE,
     tstamp TIMESTAMP NOT NULL,
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
 	FOREIGN KEY(signer_id) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(statement_id, signer_id)
+	PRIMARY KEY(audit_id)
 );
 
 CREATE TABLE statement_pay_audit(
+	audit_id SERIAL,
     statement_id INT,
 	payer_id INT,
 	confirmed BOOLEAN DEFAULT FALSE,
     tstamp TIMESTAMP NOT NULL,
 	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
 	FOREIGN KEY(payer_id) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(statement_id)	
+	PRIMARY KEY(audit_id)	
 );
+
+
 
 SELECT * FROM statement_initiate_audit;
 SELECT * FROM statement_sign_audit;
@@ -158,6 +165,7 @@ EXECUTE PROCEDURE log_statement_pay_operation();
 
 --------Store the log of all the changes to the roles of each client----------------------------------------
 CREATE TABLE client_role_changes_audit(
+	audit_id SERIAL,
     client_id INT,
     account_id INT,
     sign_role BOOLEAN NOT NULL,
@@ -166,7 +174,7 @@ CREATE TABLE client_role_changes_audit(
     tstamp TIMESTAMP NOT NULL,
     FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
     FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE,
-    PRIMARY KEY(client_id, account_id)
+    PRIMARY KEY(audit_id)
 );
 
 

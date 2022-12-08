@@ -10,37 +10,21 @@ CREATE OR REPLACE FUNCTION add_user(user_id INT, name_first VARCHAR(30), name_la
 	$$
 	LANGUAGE plpgsql;
 
---Test - WORKS
+--Test 
 SELECT add_user(15,'Bob','Rocks','124dh',611233,'6th avenue');
 
 --2) Adding an account
-CREATE OR REPLACE FUNCTION add_account(balance NUMERIC(10) DEFAULT 0, type_account VARCHAR(20) DEFAULT 'savings', cosigners INT DEFAULT 1, signatures INT DEFAULT 1)
+CREATE OR REPLACE FUNCTION add_account(acc_id INT, balance NUMERIC(10) DEFAULT 0, type_account VARCHAR(20) DEFAULT 'savings', cosigners INT DEFAULT 1, signatures INT DEFAULT 1)
 	RETURNS VOID
 	AS $$
 	BEGIN
-		INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(balance, type_account, cosigners, signatures);
+		INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(acc_id, balance, type_account, cosigners, signatures);
 	END;
 	$$
 	LANGUAGE plpgsql;
 	
---Test - WORKS
-SELECT add_account();
-SELECT add_account(1234,cosigners => 2, signatures => 2);
-
-/* I don't think we need this
---Add access level of a certain user (assuming that user does not already have an asscoiation wit the account)
-CREATE OR REPLACE FUNCTION add_access(user_id INT, account INT, sign_r BOOLEAN, view_r BOOLEAN, pay_r BOOLEAN)
-	RETURNS VOID
-	AS $$
-	BEGIN
-		INSERT INTO client_account VALUES(user_id, account, sign_r, view_r, pay_r);
-	END;
-	$$
-	LANGUAGE plpgsql;
-
---Test - WORKS
-SELECT add_access(14, 5, TRUE, FALSE, TRUE);
-*/
+--Test 
+SELECT add_account(8);
 
 --3) Add, edit, or remove the access level of a certain user to a certain account.
 CREATE OR REPLACE FUNCTION edit_access(user_id INT, account INT, sign_r BOOLEAN, view_r BOOLEAN, pay_r BOOLEAN)
@@ -59,31 +43,86 @@ CREATE OR REPLACE FUNCTION edit_access(user_id INT, account INT, sign_r BOOLEAN,
 	$$
 	LANGUAGE plpgsql;
 
---Test - WORKS
-SELECT edit_access(14,6,FALSE,FALSE,FALSE);
+--Test 
+SELECT edit_access(13,5,TRUE,TRUE,TRUE);
 
 --4) Creating a statement
-CREATE OR REPLACE FUNCTION create_statement(source_acc INT, initiator INT, note VARCHAR(100), total_amount INT DEFAULT 0)
+CREATE OR REPLACE FUNCTION create_statement(state_id INT, source_acc INT, initiator INT, note VARCHAR(100), total_amount INT DEFAULT 0)
 	RETURNS VOID
 	AS $$
 	BEGIN
-		INSERT INTO statements(note, source_account, initiator_client, total_amount) VALUES(note, source_acc, initiator, total_amount);
+		INSERT INTO statements(statement_id, note, source_account, initiator_client, total_amount) VALUES(state_id, note, source_acc, initiator, total_amount);
 	END;
 	$$
 	LANGUAGE plpgsql;
 						
---Test - WORKS
-SELECT create_statement(4,2,'hello');
-SELECT create_statement(4,1,'hello2',10);
+--Test 
+SELECT create_statement(8,7,8,'test');
 
---5) Edit or remove a statement. Not sure what this wants
+--5) Edit a statement. 
+CREATE OR REPLACE FUNCTION edit_statement(state_id INT, source_acc INT DEFAULT NULL, initiator INT DEFAULT NULL, statement_note VARCHAR(100) DEFAULT NULL, amount INT DEFAULT NULL)
+	RETURNS VOID
+	AS $$
+	BEGIN
+		--checking if statement exists
+		IF (state_id NOT IN (SELECT statement_id FROM statements)) THEN
+			RAISE EXCEPTION 'statement does not exist';
+		END IF;
+
+		IF (source_acc IS NOT NULL) THEN
+			UPDATE statements
+			SET source_account = source_acc
+			WHERE statements.statement_id = state_id;
+		END IF;
+		IF (initiator IS NOT  NULL) THEN
+			UPDATE statements
+			SET initiator_client = initiator
+			WHERE statements.statement_id = state_id;
+		END IF;
+		IF (statement_note IS NOT  NULL) THEN
+			UPDATE statements
+			SET note = statement_note 
+			WHERE statements.statement_id = state_id;
+		END IF;
+		IF (amount IS NOT  NULL) THEN
+			UPDATE statements
+			SET total_amount = amount
+			WHERE statements.statement_id = state_id;
+		END IF;
+		
+	END;
+	$$
+	LANGUAGE plpgsql;
+
+--Test
+SELECT edit_statement(8, 1, 1, 'I have been edited once again',0);
+
+--5) Remove a statement. 
+CREATE OR REPLACE FUNCTION remove_statement(state_id INT)
+	RETURNS VOID
+	AS $$
+	BEGIN
+		--checking if statement exists
+		IF (state_id NOT IN (SELECT statement_id FROM statements)) THEN
+			RAISE EXCEPTION 'statement does not exist';
+		END IF;
+		
+		DELETE FROM statements
+		WHERE statements.statement_id = state_id;
+		
+	END;
+	$$
+	LANGUAGE plpgsql;
+	
+--Test
+SELECT remove_statement(8);
 
 --6) Sign or unsign a statement. 
 CREATE OR REPLACE FUNCTION sign_unsign_statement(id_statement INT, client_id INT, statement_sign BOOLEAN)
 	RETURNS VOID
 	AS $$
 	BEGIN
-		--checking if client_id and statement are in statement_confrimation table
+		--checking if client_id and statement are in statement_signer table
 		IF(id_statement NOT IN (SELECT statement_id FROM statement_signer) OR client_id NOT IN (SELECT signer_id FROM statement_signer)) THEN
 			RAISE EXCEPTION 'client is not a signer for the statement';
 		END IF;
@@ -96,8 +135,8 @@ CREATE OR REPLACE FUNCTION sign_unsign_statement(id_statement INT, client_id INT
 	$$
 	LANGUAGE plpgsql;
 
---Test - WORKS
-SELECT sign_unsign_statement(16,1,TRUE);
+--Test 
+SELECT sign_unsign_statement(4,4, TRUE);
 
 --7) Pay a statement 
 CREATE OR REPLACE FUNCTION pay_statement(id_statement INT, client_id INT)
@@ -117,8 +156,8 @@ CREATE OR REPLACE FUNCTION pay_statement(id_statement INT, client_id INT)
 	$$
 	LANGUAGE plpgsql;
 
---Test - WORKS
-SELECT pay_statement(16,1);
+--Test 
+SELECT pay_statement(4,4);
 
 --8) Add incoming and outgoing transactions to an account 
 CREATE OR REPLACE FUNCTION add_transaction(id_statement INT, account_id INT, amount INT, type_transaction VARCHAR(30) DEFAULT 'withdrawal', note VARCHAR(100) DEFAULT '')
@@ -132,5 +171,5 @@ CREATE OR REPLACE FUNCTION add_transaction(id_statement INT, account_id INT, amo
 	$$
 	LANGUAGE plpgsql;
 									   
---Test - WORKS
-SELECT add_transaction(15, 1, 100, 'deposit');
+--Test 
+SELECT add_transaction(6, 7, 100, 'deposit');

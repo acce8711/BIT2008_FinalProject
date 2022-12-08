@@ -33,7 +33,7 @@ WHERE statements.statement_id IN (
 for statements that are not confirmed and are associated with the account.*/
 CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	RETURNS TABLE (
-					amount NUMERIC(10,0),
+					amount NUMERIC(10,2),
 					transaction_type VARCHAR(30),
 					transaction_time TIMESTAMP,
 					note VARCHAR(100))
@@ -65,11 +65,7 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 	RETURN QUERY
 		SELECT statement_signer.statement_id, statement_signer.signer_id, statement_signer.sign
 		FROM statement_signer
-		WHERE statement_signer.sign = FALSE AND statement_signer.signer_id = client AND statement_signer.signer_id IN (
-			--can remove this subquery once trigger contraints added to statement_signer table
-			SELECT client_account.client_id 
-			FROM client_account
-			WHERE client_account.sign_role = TRUE);
+		WHERE statement_signer.sign = FALSE AND statement_signer.signer_id = client;
 	END;
 	$$ language plpgsql
 
@@ -103,36 +99,33 @@ CREATE OR REPLACE FUNCTION accounts_in_common (client_1 INT, client_2 INT)
 SELECT * FROM accounts_in_common(1,2);
 
 
---7) CHECKED - CORRECT
+--7) Show the list of all statements that a certain client can sign.
 CREATE OR REPLACE FUNCTION client_can_sign (client INT)
 	RETURNS TABLE (
 					statement_id INT,
 					note VARCHAR(100),
 					source_account INT, 
 					initiator_client INT,
-					total_amount NUMERIC(10,0)
+					total_amount NUMERIC(10,2)
 					)
 	AS $$
 	BEGIN
 	RETURN QUERY
-		SELECT *
+		SELECT statements.statement_id, statements.note, statements.source_account, statements.initiator_client, statements.total_amount
 		FROM statements
 		WHERE statements.statement_id IN (
 			SELECT statement_signer.statement_id
 			FROM statement_signer
-			WHERE statement_signer.signer_id = client AND statement_signer.signer_id IN (
-				--can remove this subquery once trigger contraints added to statement_signer table
-				SELECT client_account.client_id 
-				FROM client_account
-				WHERE client_account.sign_role = TRUE));
+			WHERE statement_signer.signer_id = client);
 	END;
-	$$ language plpgsql
+	$$ language plpgsql;
 
-SELECT * FROM client_can_sign(1);
+--Test
+SELECT * FROM client_can_sign(2);
 
 
---8)assuming that "transaction that is initiated by a certain user" means the intitator of the statement that the transaction belongs to.
---checked - CORRECT
+--8) Show the list of every transaction that is initiated by a certain user but the person does not have the ”sign” permission on it.
+--assuming that "transaction that is initiated by a certain user" means the intitator of the statement that the transaction belongs to.
 CREATE OR REPLACE FUNCTION client_initiate (client INT)
 	RETURNS TABLE (
 					statement_id INT,
@@ -144,7 +137,7 @@ CREATE OR REPLACE FUNCTION client_initiate (client INT)
 	AS $$
 	BEGIN
 	RETURN QUERY
-		SELECT *
+		SELECT transactions.statement_id, transactions.amount, transactions.transaction_type, transactions.transaction_time, transactions.note, transactions.transaction_to
 		FROM transactions
 		WHERE transactions.statement_id IN (
 			SELECT statements.statement_id
@@ -154,13 +147,14 @@ CREATE OR REPLACE FUNCTION client_initiate (client INT)
 				FROM client_account
 				WHERE client_account.sign_role = FALSE));
 	END;
-	$$ language plpgsql
-	
-SELECT * FROM client_initiate(2);
+	$$ language plpgsql;
+
+--Test
+SELECT * FROM client_initiate(6);
 
 
-
---9) CHECKED - CORRECT
+--9) Show the list of every deposit into a certain account that is above a certain amount.
+--assuming that we only show deposits for transactions whose statements have been confirmed/paid.
 CREATE OR REPLACE FUNCTION account_deposit (account INT, min_deposit_amount INT)
 	RETURNS TABLE (
 					statement_id INT,
@@ -172,7 +166,7 @@ CREATE OR REPLACE FUNCTION account_deposit (account INT, min_deposit_amount INT)
 	AS $$
 	BEGIN
 	RETURN QUERY
-		SELECT * 
+		SELECT transactions.statement_id, transactions.amount, transactions.transaction_type, transactions.transaction_time, transactions.note, transactions.transaction_to 
 		FROM transactions
 		WHERE transactions.transaction_type = 'deposit'
 			AND transactions.transaction_to = account
@@ -183,6 +177,6 @@ CREATE OR REPLACE FUNCTION account_deposit (account INT, min_deposit_amount INT)
 				WHERE statement_confirmation.confirmed = TRUE
 			);
 	END;
-	$$ language plpgsql
+	$$ language plpgsql;
 
-SELECT * FROM account_deposit(6,5);
+SELECT * FROM account_deposit(3,100);

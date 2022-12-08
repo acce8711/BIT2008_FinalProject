@@ -141,8 +141,8 @@ CREATE TABLE client_address(
 
 
 CREATE TABLE account(
-	account_id SERIAL,
-	total_balance NUMERIC(10) DEFAULT 0,	
+	account_id INT,
+	total_balance NUMERIC(10,2) DEFAULT 0,	
 	account_type VARCHAR(20) DEFAULT 'savings' CHECK (account_type = 'savings' OR account_type = 'checkings'),
 	num_cosigner INT DEFAULT 1,
 	required_signatures INT DEFAULT 1 CHECK(required_signatures <= num_cosigner),
@@ -164,11 +164,11 @@ CREATE TABLE client_account(
 );
 
 CREATE TABLE statements(
-	statement_id SERIAL,
+	statement_id INT,
 	note VARCHAR(100) DEFAULT '',
 	source_account INT, 
 	initiator_client INT,
-	total_amount NUMERIC(10,0) DEFAULT 0,
+	total_amount NUMERIC(10,2) DEFAULT 0,
     lastModified TIMESTAMP DEFAULT now(),
 	FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
 	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE ,
@@ -197,7 +197,7 @@ CREATE TABLE statement_signer(
 
 CREATE TABLE transactions(
 	statement_id INT,
-	amount NUMERIC(10) NOT NULL,
+	amount NUMERIC(10,2) NOT NULL,
 	transaction_type VARCHAR(30) DEFAULT 'withdrawal' CHECK (transaction_type = 'withdrawal' OR transaction_type = 'deposit'),
 	transaction_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	note VARCHAR(100) DEFAULT '',

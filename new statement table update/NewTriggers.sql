@@ -206,6 +206,13 @@ ON statement_confirmation
 FOR EACH ROW
 EXECUTE PROCEDURE update_account_balance();
 
+CREATE TRIGGER update_account_balance_insert_trigger
+AFTER INSERT
+ON statement_confirmation
+FOR EACH ROW
+EXECUTE PROCEDURE update_account_balance();
+
+
 --Statement_signer table triggers
 
 --Trigger verifes that an inserted signer is asssociated to the statemennt source account, has a sign role and the statement is not already cnfirmed

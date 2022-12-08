@@ -57,6 +57,9 @@ INSERT INTO account (account_id, total_balance, account_type, num_cosigner, requ
 INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(5, 500.31, 'savings', 3, 1);
 INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(6, 500.50, 'checkings', 5, 5);
 INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(7, 545.65, 'checkings', 4, 2);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(9, 890.65, 'checkings', 1, 0);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(10, 600.65, 'checkings', 1, 0);
+
 
 
 --Inserting client_account data 
@@ -89,6 +92,10 @@ INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role
 INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(11,7,TRUE,FALSE,TRUE);
 INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(8,7,TRUE,FALSE,TRUE);
 
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(1,9,TRUE,TRUE,TRUE);
+
+INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(2,10,TRUE,TRUE,TRUE);
+
 
 --Inserting statements data
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(1, 'my statement1', 1, 1);
@@ -98,15 +105,10 @@ INSERT INTO statements (statement_id, note, source_account, initiator_client) VA
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(5, 'my statement5', 5, 11);
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(6, 'my statement6', 6, 5);
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(7, 'my statement7', 7, 8);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(8, 'my statement8', 9, 1);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(9, 'my statement9', 10, 2);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(10, 'my statement9', 10, 2);
 
-
---Inserting statement_confirmation data
-INSERT INTO statement_confirmation VALUES(6, 1, FALSE);
-INSERT INTO statement_confirmation VALUES(2, 6, FALSE);
-INSERT INTO statement_confirmation VALUES(3, 9, FALSE);
-INSERT INTO statement_confirmation VALUES(4, 4, FALSE);
-INSERT INTO statement_confirmation VALUES(5, 2, FALSE);
-INSERT INTO statement_confirmation VALUES(6, 11, FALSE);
 
 --Inserting statement_signer data
 INSERT INTO statement_signer VALUES(1, 3, TRUE);
@@ -169,6 +171,31 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 347, 'deposit', 3);
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 25.3, 'withdrawal', 4);
 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(8, 100.95, 'withdrawal', 1);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(8, 34, 'deposit', 2);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(8, 100.60, 'deposit', 3);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(8, 25.3, 'withdrawal', 4);
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(9, 1.95, 'withdrawal', 1);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(9, 220, 'deposit', 2);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(9, 332, 'deposit', 3);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(9, 25.3, 'withdrawal', 5);
+
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(10, 10, 'deposit', 7);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(10, 20, 'withdrawal', 4);
+
+--Inserting statement_confirmation data
+INSERT INTO statement_confirmation VALUES(1, 1, FALSE);
+INSERT INTO statement_confirmation VALUES(2, 6, FALSE);
+INSERT INTO statement_confirmation VALUES(3, 9, FALSE);
+INSERT INTO statement_confirmation VALUES(4, 4, FALSE);
+INSERT INTO statement_confirmation VALUES(5, 11, FALSE);
+INSERT INTO statement_confirmation VALUES(6, 5, FALSE);
+INSERT INTO statement_confirmation VALUES(7, 8, FALSE);
+INSERT INTO statement_confirmation VALUES(8, 1, TRUE);
+INSERT INTO statement_confirmation VALUES(9, 2, TRUE);
+INSERT INTO statement_confirmation VALUES(10, 2, TRUE);
+
 
 
 
@@ -212,6 +239,10 @@ INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to)
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 1002, 'deposit', 5); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey" 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
+
 --testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
 INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawals', 4);
 
@@ -250,6 +281,7 @@ DELETE FROM statements
 WHERE statement_id=7;
 
 DELETE FROM statement_confirmation
+WHERE statement_id = 10;
 
 
 DELETE FROM client_phone;
