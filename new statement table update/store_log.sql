@@ -1,5 +1,3 @@
-/*I am not done yet :(*/
-
 /*
 Store the history of all operations on an account/statement including sign, unsign, pay and initiation.
 
