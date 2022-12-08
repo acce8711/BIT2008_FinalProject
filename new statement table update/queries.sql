@@ -53,8 +53,8 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 --Test	
 SELECT * FROM paid_transactions (6);
 		
---5) assuming that declined signatures means where user has not signed the statement (FALSE)
---CHECKED - CORRECT
+--5) Show the list of all declined signatures of a certain client.
+--assuming that declined signatures means where user has not signed the statement (FALSE)
 CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 	RETURNS TABLE (
 					statement_id INT,
@@ -73,19 +73,35 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 	END;
 	$$ language plpgsql
 
-SELECT * FROM declined_signatures(1);
+--Test
+SELECT * FROM declined_signatures(2);
 		
-/* Attempt at 6)
-SELECT *
-FROM transactions
-WHERE transactions.statement_id IN (
-	SELECT statements.statement_id
-	FROM statements
-	WHERE statements.initiator_client = client AND statements.initiator_client IN (
-		SELECT client_account.client_id
-		FROM client_account
-		WHERE client_account.sign_role = FALSE));
-*/
+-- 6) Show the list of all of the accounts that two certain clients have in common.
+CREATE OR REPLACE FUNCTION accounts_in_common (client_1 INT, client_2 INT)
+	RETURNS TABLE (
+					account_id INT,
+					total_balance NUMERIC(10,2),
+					account_type VARCHAR(20), 
+					num_cosigner INT,
+					required_signatures INT
+					)
+	AS $$
+	BEGIN
+	RETURN QUERY
+		SELECT account.account_id, account.total_balance, account.account_type, account.num_cosigner, account.required_signatures
+		FROM account
+		WHERE account.account_id IN (SELECT client_account.account_id
+									 FROM client_account
+									 WHERE client_account.client_id = client_2 
+									 AND client_account.account_id IN (SELECT client_account.account_id
+																	   FROM client_account
+																	   WHERE client_account.client_id = client_1));
+	END;
+	$$ language plpgsql
+
+--Test
+SELECT * FROM accounts_in_common(1,2);
+
 
 --7) CHECKED - CORRECT
 CREATE OR REPLACE FUNCTION client_can_sign (client INT)

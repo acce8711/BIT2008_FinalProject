@@ -50,13 +50,13 @@ INSERT INTO client_address VALUES(14, '113 Emma Street');
 
 
 --Inserting account data
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(130.10, 'savings', 3, 2);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(3000.20, 'savings', 2, 1);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(4500.25, 'checkings', 2, 2);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(14500.45, 'savings', 1, 1);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500.31, 'savings', 3, 1);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500.50, 'checkings', 5, 5);
-INSERT INTO account (total_balance, account_type, num_cosigner, required_signatures) VALUES(500.65, 'checkings', 4, 2);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(1, 130.10, 'savings', 3, 2);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(2, 3000.20, 'savings', 2, 1);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(3, 4500.25, 'checkings', 2, 2);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(4, 14500.45, 'savings', 1, 1);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(5, 500.31, 'savings', 3, 1);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(6, 500.50, 'checkings', 5, 5);
+INSERT INTO account (account_id, total_balance, account_type, num_cosigner, required_signatures) VALUES(7, 545.65, 'checkings', 4, 2);
 
 
 --Inserting client_account data 
@@ -89,17 +89,15 @@ INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role
 INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(11,7,TRUE,FALSE,TRUE);
 INSERT INTO client_account (client_id,account_id, sign_role, view_role, pay_role) VALUES(8,7,TRUE,FALSE,TRUE);
 
-UPDATE client_account
-SET view_role = TRUE
-WHERE client_id = 8 AND account_id = 7;
 
 --Inserting statements data
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement1', 1, 1);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement2', 2, 6);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement3', 3, 10);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement4', 4, 4);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement5', 5, 11);
-INSERT INTO statements (note, source_account, initiator_client) VALUES('my statement6', 6, 5);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(1, 'my statement1', 1, 1);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(2, 'my statement2', 2, 6);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(3, 'my statement3', 3, 10);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(4, 'my statement4', 4, 4);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(5, 'my statement5', 5, 11);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(6, 'my statement6', 6, 5);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(7, 'my statement7', 7, 8);
 
 
 --Inserting statement_confirmation data
@@ -111,7 +109,7 @@ INSERT INTO statement_confirmation VALUES(5, 2, FALSE);
 INSERT INTO statement_confirmation VALUES(6, 11, FALSE);
 
 --Inserting statement_signer data
-INSERT INTO statement_signer VALUES(6, 3, TRUE);
+INSERT INTO statement_signer VALUES(1, 3, TRUE);
 INSERT INTO statement_signer VALUES(1, 1, FALSE);
 
 INSERT INTO statement_signer VALUES(2, 2, TRUE);
@@ -121,12 +119,17 @@ INSERT INTO statement_signer VALUES(3, 9, TRUE);
 
 INSERT INTO statement_signer VALUES(4, 4, TRUE);
 
-INSERT INTO statement_signer VALUES(5, 2, FALSE);
-INSERT INTO statement_signer VALUES(5, 5, FALSE);
+INSERT INTO statement_signer VALUES(5, 12, FALSE);
+INSERT INTO statement_signer VALUES(5, 11, FALSE);
 
-INSERT INTO statement_signer VALUES(6, 11, FALSE);
-INSERT INTO statement_signer VALUES(6, 12, FALSE);
-INSERT INTO statement_signer VALUES(6, 13, TRUE);
+INSERT INTO statement_signer VALUES(6, 1, FALSE);
+INSERT INTO statement_signer VALUES(6, 2, FALSE);
+INSERT INTO statement_signer VALUES(6, 3, TRUE);
+
+INSERT INTO statement_signer VALUES(7, 11, FALSE);
+INSERT INTO statement_signer VALUES(7, 10, FALSE);
+INSERT INTO statement_signer VALUES(7, 8, TRUE);
+
 
 /*
 INSERT INTO statement_signer VALUES(7, 1, FALSE);
@@ -137,36 +140,34 @@ INSERT INTO statement_signer VALUES(7, 5, FALSE);
 */
 
 --Inserting transactions data
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 9);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 23, 'withdrawal', 10);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 100, 'withdrawal', 11);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 25, 'deposit', 10);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 2);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 23, 'withdrawal', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 100, 'withdrawal', 5);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 25, 'deposit', 4);
 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 25, 'deposit', 8);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 104, 'deposit', 12);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 67, 'withdrawal', 13);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 25, 'deposit', 7);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 104, 'deposit', 3);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 67, 'withdrawal', 1);
 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 65, 'withdrawal', 13);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 10, 'deposit', 12);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'deposit', 8);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 65, 'withdrawal', 4);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 10, 'deposit', 6);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'deposit',5);
 
-/*
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 100.95, 'withdrawal', 8);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 200, 'deposit', 9);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 347, 'deposit', 10);
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 25.3, 'withdrawal', 12);
-*/
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(4, 100, 'withdrawal', 8, 'thanks for the cash');
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(4, 45.36, 'deposit', 10, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(4, 100, 'withdrawal', 7, 'thanks for the cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(4, 45.36, 'deposit', 1, 'here is some cash');
 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 100, 'deposit', 10, 'here is some cash');
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 102, 'withdrawal', 9, 'thanks for the cash');
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 23.5, 'deposit', 8, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 100, 'deposit', 7, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 102, 'withdrawal', 4, 'thanks for the cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(5, 23.5, 'deposit', 2, 'here is some cash');
 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 100, 'deposit', 8, 'here is some cash');
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 550.50, 'withdrawal', 11,  'thanks for the cash');
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 25, 'deposit', 9, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 100, 'deposit', 1, 'here is some cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 550.50, 'withdrawal', 3,  'thanks for the cash');
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to, note) VALUES(6, 25, 'deposit', 6, 'here is some cash');
 
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 100.95, 'withdrawal', 1);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 200, 'deposit', 2);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 347, 'deposit', 3);
+INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(7, 25.3, 'withdrawal', 4);
 
 
 
@@ -246,7 +247,7 @@ DELETE FROM transactions
 WHERE statement_id = 1;
 
 DELETE FROM statements
-WHERE statement_id=12;
+WHERE statement_id=7;
 
 DELETE FROM statement_confirmation
 
@@ -266,13 +267,5 @@ SELECT * FROM client_phone;
 SELECT * FROM client_address;
 SELECT * FROM account;
 
-DELETE FROM client;
-DELETE FROM client_phone;
-DELETE FROM client_address;
-DELETE FROM account;
-DELETE FROM client_account;
-DELETE FROM statements;
-DELETE FROM statement_confirmation;
-DELETE FROM statement_signer;
-DELETE FROM transactions;
+
 
