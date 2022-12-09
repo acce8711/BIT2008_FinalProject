@@ -49,7 +49,7 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 			WHERE statement_confirmation.confirmed = FALSE
 		);
 	END;
-	$$ language plpgsql
+	$$ language plpgsql;
 
 --Test	
 SELECT * FROM paid_transactions (6);
@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 		FROM statement_signer
 		WHERE statement_signer.sign = FALSE AND statement_signer.signer_id = client;
 	END;
-	$$ language plpgsql
+	$$ language plpgsql;
 
 --Test
 SELECT * FROM declined_signatures(1);
@@ -94,7 +94,7 @@ CREATE OR REPLACE FUNCTION accounts_in_common (client_1 INT, client_2 INT)
 																	   FROM client_account
 																	   WHERE client_account.client_id = client_1));
 	END;
-	$$ language plpgsql
+	$$ language plpgsql;
 
 --Test
 SELECT * FROM accounts_in_common(5,6);
