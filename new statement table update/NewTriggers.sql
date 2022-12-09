@@ -239,7 +239,7 @@ CREATE OR REPLACE FUNCTION verify_signer()
 	 ) THEN
 	    RETURN NEW;
 	ELSE
-		RAISE EXCEPTION 'signer cannot be added. user does not have sign role or is not associated with the source account';
+		RAISE EXCEPTION 'signer cannot be added/changed. user does not have sign role or is not associated with the source account';
 	END IF;
 	
 	END;
@@ -248,6 +248,12 @@ CREATE OR REPLACE FUNCTION verify_signer()
 
 CREATE TRIGGER verify_signer_trigger
 BEFORE INSERT
+ON statement_signer
+FOR EACH ROW
+EXECUTE PROCEDURE verify_signer();
+
+CREATE TRIGGER verify_signer__update_trigger
+BEFORE UPDATE
 ON statement_signer
 FOR EACH ROW
 EXECUTE PROCEDURE verify_signer();
@@ -269,6 +275,12 @@ CREATE OR REPLACE FUNCTION sign_unsign()
 
 CREATE TRIGGER sign_unsign_trigger
 BEFORE UPDATE
+ON statement_signer
+FOR EACH ROW
+EXECUTE PROCEDURE sign_unsign();
+
+CREATE TRIGGER sign_unsign_insert_trigger
+BEFORE INSERT
 ON statement_signer
 FOR EACH ROW
 EXECUTE PROCEDURE sign_unsign();

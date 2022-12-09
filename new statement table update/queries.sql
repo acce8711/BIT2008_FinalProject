@@ -10,7 +10,7 @@ WHERE client_id IN (
 	WHERE sign_role = TRUE);
 	
 --2) Show the list of the accounts with fewer required signatures than the signers.
-SELECT account.account_id, account.required_signatures
+SELECT account.account_id, account.total_balance, account.account_type, account.num_cosigner, account.required_signatures, signer_account.num_signers as number_of_signers
 FROM account
 INNER JOIN (SELECT client_account.account_id, COUNT(client_account.sign_role) as num_signers
 			FROM client_account
@@ -33,6 +33,7 @@ WHERE statements.statement_id IN (
 for statements that are not confirmed and are associated with the account.*/
 CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	RETURNS TABLE (
+					statement_id INT,
 					amount NUMERIC(10,2),
 					transaction_type VARCHAR(30),
 					transaction_time TIMESTAMP,
@@ -40,7 +41,7 @@ CREATE OR REPLACE FUNCTION paid_transactions (account_id INT)
 	AS $$
 	BEGIN
 	RETURN QUERY
-		SELECT transactions.amount, transactions.transaction_type, transactions.transaction_time, transactions.note
+		SELECT transactions.statement_id, transactions.amount, transactions.transaction_type, transactions.transaction_time, transactions.note
 		FROM transactions
 		WHERE transactions.transaction_to = account_id AND transactions.transaction_type = 'deposit' AND transactions.statement_id in (
 			SELECT statement_confirmation.statement_id
@@ -70,7 +71,7 @@ CREATE OR REPLACE FUNCTION declined_signatures (client INT)
 	$$ language plpgsql
 
 --Test
-SELECT * FROM declined_signatures(2);
+SELECT * FROM declined_signatures(1);
 		
 -- 6) Show the list of all of the accounts that two certain clients have in common.
 CREATE OR REPLACE FUNCTION accounts_in_common (client_1 INT, client_2 INT)
@@ -96,7 +97,7 @@ CREATE OR REPLACE FUNCTION accounts_in_common (client_1 INT, client_2 INT)
 	$$ language plpgsql
 
 --Test
-SELECT * FROM accounts_in_common(1,2);
+SELECT * FROM accounts_in_common(5,6);
 
 
 --7) Show the list of all statements that a certain client can sign.

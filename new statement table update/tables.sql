@@ -91,3 +91,57 @@ CREATE TABLE transactions(
 	FOREIGN KEY(transaction_to) REFERENCES account(account_id) ON DELETE CASCADE,
 	PRIMARY KEY(statement_id, amount, transaction_type, transaction_time, note, transaction_to)
 );
+
+
+--Audit tables
+--1. Initiate statement audit table
+--2. Statement sign or unsign audit table
+--3. Statement pay audit table
+--4. Client role changes audit table
+
+CREATE TABLE statement_initiate_audit(
+	audit_id SERIAL,
+    statement_id INT,
+	source_account INT,
+	initiator_client INT,
+    tstamp TIMESTAMP NOT NULL,
+    FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
+    FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
+	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(audit_id)	
+);
+
+CREATE TABLE statement_sign_audit(
+	audit_id SERIAL,
+    statement_id INT,
+	signer_id INT,
+	sign BOOLEAN DEFAULT FALSE,
+    tstamp TIMESTAMP NOT NULL,
+	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
+	FOREIGN KEY(signer_id) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(audit_id)
+);
+
+CREATE TABLE statement_pay_audit(
+	audit_id SERIAL,
+    statement_id INT,
+	payer_id INT,
+	confirmed BOOLEAN DEFAULT FALSE,
+    tstamp TIMESTAMP NOT NULL,
+	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
+	FOREIGN KEY(payer_id) REFERENCES client(client_id)ON DELETE CASCADE,
+	PRIMARY KEY(audit_id)	
+);
+
+CREATE TABLE client_role_changes_audit(
+	audit_id SERIAL,
+    client_id INT,
+    account_id INT,
+    sign_role BOOLEAN NOT NULL,
+    view_role BOOLEAN NOT NULL,
+    pay_role BOOLEAN NOT NULL,
+    tstamp TIMESTAMP NOT NULL,
+    FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
+    FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE,
+    PRIMARY KEY(audit_id)
+);

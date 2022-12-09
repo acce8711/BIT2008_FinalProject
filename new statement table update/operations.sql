@@ -57,7 +57,7 @@ CREATE OR REPLACE FUNCTION create_statement(state_id INT, source_acc INT, initia
 	LANGUAGE plpgsql;
 						
 --Test 
-SELECT create_statement(8,7,8,'test');
+SELECT create_statement(11,7,8,'test');
 
 --5) Edit a statement. 
 CREATE OR REPLACE FUNCTION edit_statement(state_id INT, source_acc INT DEFAULT NULL, initiator INT DEFAULT NULL, statement_note VARCHAR(100) DEFAULT NULL, amount INT DEFAULT NULL)
@@ -95,7 +95,7 @@ CREATE OR REPLACE FUNCTION edit_statement(state_id INT, source_acc INT DEFAULT N
 	LANGUAGE plpgsql;
 
 --Test
-SELECT edit_statement(8, 1, 1, 'I have been edited once again',0);
+SELECT edit_statement(11, 1, 1, 'I have been edited once again',0);
 
 --5) Remove a statement. 
 CREATE OR REPLACE FUNCTION remove_statement(state_id INT)

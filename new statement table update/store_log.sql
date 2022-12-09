@@ -1,55 +1,6 @@
 /*
 Store the history of all operations on an account/statement including sign, unsign, pay and initiation.
 
-Create tables to keep track of any account operations with a timestamp
-1. Initiate statement audit table
-2. Statement sign or unsign audit table
-3. Statement pay audit table
-
-*/
-CREATE TABLE statement_initiate_audit(
-	audit_id SERIAL,
-    statement_id INT,
-	source_account INT,
-	initiator_client INT,
-    tstamp TIMESTAMP NOT NULL,
-    FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
-    FOREIGN KEY(source_account) REFERENCES account(account_id)ON DELETE CASCADE,
-	FOREIGN KEY(initiator_client) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(audit_id)	
-);
-
-CREATE TABLE statement_sign_audit(
-	audit_id SERIAL,
-    statement_id INT,
-	signer_id INT,
-	sign BOOLEAN DEFAULT FALSE,
-    tstamp TIMESTAMP NOT NULL,
-	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
-	FOREIGN KEY(signer_id) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(audit_id)
-);
-
-CREATE TABLE statement_pay_audit(
-	audit_id SERIAL,
-    statement_id INT,
-	payer_id INT,
-	confirmed BOOLEAN DEFAULT FALSE,
-    tstamp TIMESTAMP NOT NULL,
-	FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
-	FOREIGN KEY(payer_id) REFERENCES client(client_id)ON DELETE CASCADE,
-	PRIMARY KEY(audit_id)	
-);
-
-
-
-SELECT * FROM statement_initiate_audit;
-SELECT * FROM statement_sign_audit;
-SELECT * FROM statement_pay_audit;
-SELECT * FROM client_role_changes_audit;
-
-
-/*
 Create a function for each account/statement operation
 1. initiate
 2. sign/unsign
@@ -108,7 +59,7 @@ CREATE OR REPLACE FUNCTION log_statement_pay_operation()
     RETURNS TRIGGER
 AS $$
 BEGIN
-    if (TG_OP = 'UPDATE') then
+	IF (NEW.confirmed = TRUE) THEN
        INSERT INTO statement_pay_audit(
         statement_id,
         payer_id,
@@ -121,7 +72,7 @@ BEGIN
         NEW.confirmed,
         CURRENT_TIMESTAMP
        );
-       end if;
+    END IF;
 RETURN NEW;
 END;
 $$
@@ -161,19 +112,6 @@ EXECUTE PROCEDURE log_statement_pay_operation();
 
 
 --------Store the log of all the changes to the roles of each client----------------------------------------
-CREATE TABLE client_role_changes_audit(
-	audit_id SERIAL,
-    client_id INT,
-    account_id INT,
-    sign_role BOOLEAN NOT NULL,
-    view_role BOOLEAN NOT NULL,
-    pay_role BOOLEAN NOT NULL,
-    tstamp TIMESTAMP NOT NULL,
-    FOREIGN KEY(client_id) REFERENCES client(client_id) ON DELETE CASCADE,
-    FOREIGN KEY(account_id) REFERENCES account(account_id) ON DELETE CASCADE,
-    PRIMARY KEY(audit_id)
-);
-
 
 CREATE OR REPLACE FUNCTION log_client_role_change()
 RETURNS TRIGGER
@@ -280,11 +218,11 @@ FOR EACH ROW
 EXECUTE PROCEDURE update_timestamp();
 
 -------------------------------Test with client table insertion---------------------------------------------
-INSERT INTO client VALUES (15, 'Please', 'Work', 'before');
-SELECT * from client WHERE client_id = 15; --timestamp is 11:34:45
+INSERT INTO client VALUES (16, 'Please', 'Work', 'before');
+SELECT * from client WHERE client_id = 16; 
 --Update the entry
 UPDATE client
 SET client_password = 'after'
 WHERE client_id = 15;
-SELECT * from client WHERE client_id = 15;--timestamp is 11:38:20. It works :D.
+SELECT * from client WHERE client_id = 15;
 ------------------------------------------------------------------------------------------------------------

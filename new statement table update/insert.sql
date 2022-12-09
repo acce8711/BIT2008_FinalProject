@@ -1,3 +1,5 @@
+--NOTE: run tables.sql, store_log.sql, triggers.sql before running the insert statements
+
 --Inserting client data
 INSERT INTO client VALUES(1,'Jim', 'Rocks', 'ILikeRocks');
 INSERT INTO client VALUES(2,'Chloe', 'Joyce', 'idopds762');
@@ -107,7 +109,7 @@ INSERT INTO statements (statement_id, note, source_account, initiator_client) VA
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(7, 'my statement7', 7, 8);
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(8, 'my statement8', 9, 1);
 INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(9, 'my statement9', 10, 2);
-INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(10, 'my statement9', 10, 2);
+INSERT INTO statements (statement_id, note, source_account, initiator_client) VALUES(10, 'my statement10', 10, 2);
 
 
 --Inserting statement_signer data
@@ -198,106 +200,23 @@ INSERT INTO statement_confirmation VALUES(10, 2, TRUE);
 
 
 
-
-
-
-/*Insert statement_confirmation data here*/
-
-
-
-/*Insert statement_signer Data Here*/
---need to add triggers functions constraints that check if client id is associated with the statemnts source account and has sign role
-
---INSERT INTO statement_signer VALUES(2, 2, TRUE); --trigger error: no sign role
---INSERT INTO statement_signer VALUES(8, 1, TRUE); --trigger error: no sign role
-
---INSERT INTO statement_signer VALUES(13, 1, TRUE); --trigger error: no sign role
---INSERT INTO statement_signer VALUES(16, 1, TRUE); --trigger error: no sign role
-
-
-
---testing if invalid signer can be inserted. it cannot. trigger 'verify_signer_trigger' works :D
-INSERT INTO statement_signer VALUES(20, 8, TRUE);
-
-
-/*Insert Transaction Data Here*/
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 5); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 105, 'deposit', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'withdrawal', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 5, 'deposit', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(1, 10, 'deposit', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 101, 'deposit', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 10, 'deposit', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 100, 'withdrawal', 4); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 100, 'withdrawal', 6); --wow, this one actually works! 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(3, 1002, 'deposit', 6); --this one works too!
-
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 1002, 'deposit', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(2, 2, 'withdrawal', 6); --trigger error: Statement cannot be edited. There is already at least one signature.
-
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 1002, 'deposit', 5); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey" 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
-
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 1002, 'deposit', 5); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey" 
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 2, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(13, 20, 'withdrawal', 1); -- insert or update on table "transactions" violates foreign key constraint "transaction_statement_id_fkey"
-
---testing if trasaction can be added if statement is confirmed. It cannot be added. Trigger works :D
-INSERT INTO transactions(statement_id, amount, transaction_type, transaction_to) VALUES(4, 100, 'withdrawals', 4);
-
-UPDATE statements
-SET total_amount = 2
-WHERE statements.statement_id = 2; 
-
-UPDATE statement_signer
-SET sign = TRUE
-WHERE statement_signer.statement_id = 8 AND statement_signer.signer_id = 1; 
-
-UPDATE statement_confirmation
-SET payer_id = 1
-WHERE statement_id = 1; 
-
-DELETE FROM statement_signer
-WHERE statement_signer.statement_id = 2;
-
-UPDATE statement_confirmation
-SET payer_id = 2
-WHERE statement_confirmation.statement_id = 16; 
-
-UPDATE transactions
-SET amount = 12
-WHERE statement_id = 2 and amount =11; 
-
-UPDATE client_phone
-SET phone_numbr = 6137869244
-WHERE client_id = 1 AND phone_numbr=6137869233; 
-
-
-DELETE FROM transactions
-WHERE statement_id = 1;
-
-DELETE FROM statements
-WHERE statement_id=7;
-
-DELETE FROM statement_confirmation
-WHERE statement_id = 10;
-
-
-DELETE FROM client_phone;
-
-DELETE FROM client_account;
-
-SELECT * FROM statements;
-SELECT * FROM client_account;
-SELECT * FROM statements;
-SELECT * FROM statement_confirmation;
-SELECT * FROM statement_signer;
 SELECT * FROM transactions;
 SELECT * FROM client;
 SELECT * FROM client_phone;
 SELECT * FROM client_address;
 SELECT * FROM account;
+SELECT * FROM client_account;
+SELECT * FROM statements;
+SELECT * FROM statement_signer;
+SELECT * FROM transactions;
+SELECT * FROM statement_confirmation;
 
+DELETE FROM statement_confirmation;
 
+--Audit tables
+--NOTE: need to run code from store_log.sql first
+SELECT * FROM statement_initiate_audit;
+SELECT * FROM statement_sign_audit;
+SELECT * FROM statement_pay_audit;
+SELECT * FROM client_role_changes_audit;
 
