@@ -1,5 +1,3 @@
-/*I am not done yet :(*/
-
 /*
 Store the history of all operations on an account/statement including sign, unsign, pay and initiation.
 
@@ -11,8 +9,8 @@ Create tables to keep track of any account operations with a timestamp
 */
 CREATE TABLE statement_initiate_audit(
 	audit_id SERIAL,
-    statement_id INT, --initiated statement
-	source_account INT, --account that statement is initiated on
+    statement_id INT,
+	source_account INT,
 	initiator_client INT,
     tstamp TIMESTAMP NOT NULL,
     FOREIGN KEY(statement_id) REFERENCES statements(statement_id)ON DELETE CASCADE,
@@ -57,7 +55,6 @@ Create a function for each account/statement operation
 2. sign/unsign
 3. pay
 */
-
 
 CREATE OR REPLACE FUNCTION log_statement_initiate_operation()
 RETURNS TRIGGER
@@ -211,16 +208,10 @@ ON client_account
 FOR EACH ROW
 EXECUTE PROCEDURE log_client_role_change();
 
-/*
-Store the last time the tables are edited
 
-We added a new column called "lastModified" to each table to store last edit time
-lastModified's default value is the current time
-We will make a trigger for each table on any update
-Then, a function will be called that will change the timestamp in lastModified when triggered
-*/
+---------------------Store the last time the tables are edited------------------------------------------------------
 
---Create function that changes the lastModified timestamp in each table--------------------------------
+--Create a function that changes the lastModified timestamp in each table--------------------------------
 
 CREATE OR REPLACE FUNCTION update_timestamp()
     RETURNS TRIGGER
